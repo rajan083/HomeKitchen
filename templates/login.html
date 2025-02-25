@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}HomeKitchen{% endblock title %}
+
+{% block content %}
+<div class='card-container'>
+    <div class='card'>
+        <form action="{{ url_for('login') }}" method='POST'>
+            <input type='email' placeholder='Email' name= 'Email'><br>
+            <input type='password' placeholder='Password' name= 'Password'><br>
+            <button type='submit'>Login</button>
+        </form>
+        <div>
+            <p>New User?<a href="{{ url_for('register') }}">Click here to Register</a></p>
+            <p>Didn't receive a verification email? <a href="{{ url_for('send_verification') }}">Verify your email</a></p>
+        </div>
+    </div>
+</div>
+{% endblock content %}

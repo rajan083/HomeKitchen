@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}HomeKitchen{% endblock title %}
+
+{% block content %}
+    <h1>My Orders</h1>
+    {% for order in orders %}
+        <div class="order-card">
+            <p>Order ID: {{ order.id }}</p>
+            <p>Item: {{ order.item_name }}</p>
+            <p>Status: {{ order.payment_status }}</p>
+        </div>
+    {% else %}
+        <p>No orders placed yet.</p>
+    {% endfor %}
+{% endblock content %}

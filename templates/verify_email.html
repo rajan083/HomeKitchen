@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class='kyc-data'>
+    <form action="{{ url_for('send_verification') }}" method="POST">
+        <input type="email" name="Email" placeholder="Enter your email" required>
+        <button type="submit">Verify</button>
+    </form>
+</div>
+
+{% endblock content %}

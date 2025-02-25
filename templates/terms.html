@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+    <h1>Terms & Conditions</h1>
+    <div>
+        <form action="{{ url_for('terms') }}" method="POST">
+            <label>
+                <input type="checkbox" name="Accept" required>
+                <p>I hereby accept all the given Terms & Policies and fully agree to them.</p>
+            </label><br>
+            <button type="submit">Agree & Continue</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

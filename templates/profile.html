@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Profile-{{ user.name }}{% endblock %}
+
+{% block content %}
+
+<div class="top-right-buttons">
+    {% if user.role == 'vendor' %}
+        <a href="{{ url_for('additems') }}"><button>Add Items</button></a>
+    {% elif user.role == 'consumer' %}
+        <a href="{{ url_for('my_orders') }}"><button>My Orders</button></a>
+    {% endif %}
+</div>
+
+
+<div class="card-container">
+    <div class="card">
+        <form method="POST" action="{{ url_for('profile') }}">
+            <label for="profile_image">
+                <img id="profilePreview" src="{{ url_for('static', filename=user.photo if user.photo else 'images/default-user.jpg') }}" 
+                     alt="Profile Image" style="width: 120px; height: 120px; border: 1px solid #000; border-radius: 50%; margin-left: 15px;">
+            </label>
+            
+            <input type="file" id="profile_image" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)">
+            
+            <br><br>
+            <input type="email" placeholder='Email' id="email" value="{{ user.email }}" disabled>
+            <small class="text-muted">Email cannot be changed</small>
+            <input type="text" placeholder='Name' id="name" name="name" value="{{ user.name }}" required>
+            <input type="tel" placeholder='Phone' id="phone" name="phone" value="{{ user.phone }}" required>
+            {% if user.role == 'vendor' %}
+            <div>
+                <input type="text" placeholder='Upi Id' id="upi_id" name="upi_id" value="{{ user.upi_id }}">
+            </div>
+            <h2>{{ user.business_name }}</h2>
+            <p><strong>Address:</strong> {{ user.address }}</p>
+            <div id="map" style="height: 400px; width: 100%; border-radius: 12px;"></div>
+            {% endif %}
+            <hr>
+            <h4>Change Password</h4>    
+            <input type="password" placeholder='Current password' id="current_password" name="current_password">
+            <input type="password" placeholder='New password' id="new_password" name="new_password">
+            <input type="password" placeholder='New password' id="confirm_password" name="confirm_password">
+            <button type="submit">Update Profile</button>
+        </form>
+    </div>
+    
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const currentPassword = document.getElementById('current_password').value;
+
+        if (newPassword || confirmPassword || currentPassword) {
+            if (!currentPassword) {
+                e.preventDefault();
+                alert('Please enter your current password to change password');
+            }
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('New passwords do not match');
+            }
+        }
+    });
+</script>
+<script>
+    function initMap() {
+        var businessLocation = {lat: parseFloat("{{ user.latitude }}"), lng: parseFloat("{{ user.longitude }}")};
+        var map = new google.maps.Map(document.getElementById('map'), {zoom: 15, center: businessLocation});
+        var marker = new google.maps.Marker({position: businessLocation, map: map});
+    }
+    </script>
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function(){
+                var output = document.getElementById('profilePreview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-ZoIbb0vLDv2SGuzdHQeZ4V1kIJeDk7U&callback=initMap"></script>
+{% endblock %}

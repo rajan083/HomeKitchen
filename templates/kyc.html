@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="kyc-container">
+        <h1>Know Your Customer (KYC)</h1>
+    <div class='kyc-data'>
+        {% if session['user_role'] == 'vendor', 'consumer' %}
+            <form action="{{ url_for('kyc') }}" method="POST" enctype="multipart/form-data">
+                <input type="text" id="name" name="Name" placeholder="Name" required><br>
+                <input type="date" id="dob" name="Dob" required><br>
+                
+                <select id="gender" name="Gender" required>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Not say">Rather not say</option>
+                </select><br>
+
+                <input type="tel" id="phone" name="Phone" placeholder="Phone" required><br>
+                <input type="text" id="address" name="Address" placeholder="Address" required>
+                <button type="button" onclick="getLocation()">📍 Get Live Location</button><br>
+
+                <select id="id_type" name="Id_type" required>
+                    <option value="">Select</option>
+                    <option value="Aadhaar">Aadhaar</option>
+                    <option value="PAN">PAN</option>
+                    <option value="Passport">Passport</option>
+                    <option value="Driver’s License">Driver’s License</option>
+                </select><br>
+                <input type="text" id="id_number" name="Id_number" placeholder="Id number" required><br>
+
+                <input type="file" id="id_proof" name="Id_proof" accept=".pdf,.jpg,.png" required>
+                <p>PDF/JPG/PNG are accepted only.</p><br>
+
+                <input type="file" id="photo" name="Photo" accept=".jpg,.png" required>
+                <p>JPG/PNG are accepted only.</p><br>
+
+                <label>
+                    <input type="checkbox" name="declaration" required><p>I confirm that the details provided are accurate.</p>
+                </label><br>
+
+                <button type="submit">Submit KYC</button>
+            </form>
+        </div>
+        <a href="{{ url_for('business_details') }}">
+            <button>Next</button>
+        </a>
+    {% endif %}
+</div>
+
+<script>
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    }
+
+    function showPosition(position) {
+        let latitude = position.coords.latitude;
+        let longitude = position.coords.longitude;
+        
+        let apiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                let address = data.display_name;
+                document.getElementById("address").value = address;
+            })
+            .catch(error => {
+                console.error("Error fetching location:", error);
+                alert("Could not fetch address. Try again.");
+            });
+    }
+
+    function showError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                alert("User denied the request for Geolocation.");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                alert("Location information is unavailable.");
+                break;
+            case error.TIMEOUT:
+                alert("The request to get user location timed out.");
+                break;
+            case error.UNKNOWN_ERROR:
+                alert("An unknown error occurred.");
+                break;
+        }
+    }
+</script>
+
+{% endblock content %}

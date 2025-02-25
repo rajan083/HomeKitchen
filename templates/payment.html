@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}HomeKitchen{% endblock title %}
+
+{% block content %}
+    <h1>Complete Your Payment</h1>
+    <p>Order ID: {{ order.id }}</p>
+    <p>Item: {{ order.item_name }}</p>
+    <p>Amount: ₹{{ "%.2f"|format(order.amount) }}</p> <!-- ✅ Fixed: Formatting amount properly -->
+
+    <h3>Pay using UPI</h3>
+    <a href="{{ order.upi_link }}" target="_blank">
+        <button>Pay Now</button>
+    </a>
+
+    <h3>Or Scan QR Code</h3>
+    <img src="{{ url_for('generate_qr', order_id=order.id) }}" alt="UPI QR Code">
+
+    <h3>After Payment, Click Below</h3>
+    <form action="{{ url_for('confirm_payment', order_id=order.id) }}" method="POST">
+        <button type="submit">I've Paid</button>
+    </form>
+    <h3>Estimated Delivery Time</h3>
+    <p id="countdown"></p>
+
+    <h3>Cancel Order</h3>
+    <form action="{{ url_for('cancel_order', order_id=order.id) }}" method="POST">
+        <button type="submit" onclick="return confirm('Are you sure you want to cancel this order?');">
+            Cancel Order
+        </button>
+    </form>
+
+
+<script>
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            document.getElementById("countdown").textContent = "Delivery in: " + minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                document.getElementById("countdown").textContent = "Order should have been delivered.";
+            }
+        }, 1000);
+    }
+
+    window.onload = function () {
+        let deliveryTime = 30 * 60;  // 30 minutes in seconds
+        startTimer(deliveryTime);
+    };
+</script>
+
+{% endblock content %}

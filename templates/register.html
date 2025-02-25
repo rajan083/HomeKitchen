@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}HomeKitchen{% endblock title %}
+
+{% block content %}
+<div class='card-container'>
+    <div class='card'>
+        <form action="{{ url_for('register') }}" method='POST'>
+            <div class='name-phone'>
+                <input type='text' placeholder='Name' name='Name' required>
+                <input type='number' placeholder='Phone' name='Phone' required>
+            </div><br>
+
+            <select name="Role" id="role" placeholder="Role" required onchange="toggleUpiField()">
+                <option value="consumer">Consumer</option>
+                <option value="vendor">Vendor</option>
+            </select><br>
+
+            <input type='email' placeholder='Email' name='Email' required><br>
+            <input type='password' placeholder='Password' name='Password' required><br>
+
+            <div id="upiField" style="display: none;">
+                <input type='text' placeholder='UPI ID (yourname@bank)' name='UPI' id="UPI"><br>
+            </div>
+
+            <button type='submit'>Register</button>
+        </form>
+
+        <div>
+            <p>Already registered? <a href="{{ url_for('login') }}">Click here to Login</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleUpiField() {
+    const role = document.getElementById('role').value;
+    const upiField = document.getElementById('upiField');
+    const upiInput = document.getElementById('UPI'); 
+
+    if (role === 'vendor') {
+        upiField.style.display = 'block';
+        upiInput.setAttribute('required', 'true'); // Ensure required when vendor
+    } else {
+        upiField.style.display = 'none';
+        upiInput.removeAttribute('required'); // Remove required when consumer
+    }
+}
+
+// ✅ Ensure the correct field is displayed on page load
+document.addEventListener("DOMContentLoaded", toggleUpiField);
+</script>
+{% endblock content %}

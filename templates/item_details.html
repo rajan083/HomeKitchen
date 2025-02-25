@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.name }} Details{% endblock title %}
+
+{% block content %}
+<div class="itemdetail-container">
+    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+    <div class="details">
+        <h2>{{ item.name }}</h2>
+        <p><strong>Price:</strong> ₹{{ item.amount }}</p>
+        <p><strong>Seller:</strong> {{ item.seller.name }}</p>
+        <p><strong>Stock:</strong> {{ item.stock }}</p>
+        <p><strong>{{ item.type }}</strong></p>
+        <p><strong>{{ item.region }}</strong></p>
+        
+        {% if session.get('user_role') == 'consumer' %}
+        <form action="{{ url_for('place_order', item_id=item.id) }}" method="POST">
+            <label for="quantity"><strong>Quantity:</strong></label>
+            <input type="number" name="quantity" id="quantity" min="1" max="{{ item.stock }}" required>
+            <input type="hidden" name="item_name" value="{{ item.name }}">
+            <input type="hidden" name="amount" value="{{ item.amount }}">
+            <input type="hidden" name="seller_email" value="{{ item.seller.email }}">
+            <button class="order-btn" type="submit">Order Now</button>
+        </form>
+        
+        
+    
+            <!-- Like and Dislike Buttons -->
+            <form action="{{ url_for('like_item', item_id=item.id) }}" method="POST" >
+                <button class="btn" type="submit">👍 Like ({{ item.likes }})</button>
+            </form>
+            
+            <form action="{{ url_for('dislike_item', item_id=item.id) }}" method="POST">
+                <button class="btn" type="submit">👎 Dislike ({{ item.dislikes }})</button>
+            </form>
+        {% endif %}
+    
+        <!-- Comments Section -->
+        <h2>Comments</h2>
+        <div class="comments-section">
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="comment">
+                        <strong style="color: #958585;">{{ comment.user.name if comment.user else 'Unknown User' }}:</strong> 
+                        <p>{{ comment.text }}</p>
+                        <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endif %}
+        </div>
+    
+        <!-- Add Comment Form -->
+        <form method="POST" action="{{ url_for('comment_item', item_id=item.id) }}" style="display: flex; flex-wrap: wrap;">
+            <textarea name="comment" required placeholder=" Comment here"></textarea>
+            <button class='btn' type="submit">Post</button>
+        </form>
+    </div>
+
+</div>
+
+{% endblock content %}

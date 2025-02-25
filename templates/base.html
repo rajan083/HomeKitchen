@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HomeKitchen{% endblock title %}</title>
+    <link rel='stylesheet' href="{{url_for('static', filename='style/style.css')}}"
+</head>
+<body>
+    <header>
+        <div>
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt='Logo'>
+            <nav>
+                <ul>
+                    <li><a href="{{url_for('home')}}">Home</a></li>
+                    <li><a href="{{url_for('dashboard')}}">Dashboard</a></li>
+                    <li><a href="{{url_for('login')}}">Login</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div>
+        {% block content %}{% endblock content %}
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section about">
+                <h2>HomeKitchen</h2>
+                <p>Your go-to marketplace for delicious home-cooked meals. Order from trusted vendors and enjoy fresh, homemade food.</p>
+            </div>
+    
+            <div class="footer-section quick-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('additems') }}">Add Items</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('terms') }}">Terms & Conditions</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-section contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Panchkula, Haryana, India</p>
+                <p>
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:hetheyelloweyd@gmail.com" style="margin-left: -2px; text-transform: none;">hetheyelloweyd@gmail.com</a>
+                </p>
+                <p>
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+916283060669" style="margin-left: -2px;">+91 62830 60669</a>
+                </p>
+            </div>
+            
+    
+            <div class="footer-section social">
+                <h3>Follow Us</h3>
+                <div class="social-icons">
+                    <a href="https://www.linkedin.com/in/your-page-link" target="_blank">
+                        <img src="{{url_for('static', filename='images/linkedin.png')}}" class='linkedin'></img>
+                    </a>
+
+                    <a href="https://www.instagram.com/your-page-link" target="_blank">
+                        <img src="{{url_for('static', filename='images/instagram.png')}}" class='instagram'></img>
+                    </a>
+
+                    <a href="https://twitter.com/your-page-link" target="_blank">
+                        <img src="{{url_for('static', filename='images/Gmail.png')}}" class='gmail'></img>
+                    </a>
+
+                    <a href="https://www.facebook.com/your-page-link" target="_blank">
+                        <img src="{{url_for('static', filename='images/facebook.png')}}" class='facebook'></img>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+    
+        <div class="footer-bottom">
+            <p>&copy; 2025 HomeKitchen. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    
+    <script>
+        setTimeout(function () {
+            let messages = document.querySelectorAll('.flash-message');
+            messages.forEach(msg => {
+                msg.style.display = 'none';
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

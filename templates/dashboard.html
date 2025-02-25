@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}HomeKitchen{% endblock title %}
+
+{% block content %}
+
+<div class="top-right-buttons">
+    <a href="{{url_for('logout')}}"><button>Logout</button></a>
+</div>
+
+<div class="search-container">
+    <form method="GET" action="{{ url_for('dashboard') }}" role="search">
+        <div class="search-wrapper">
+            <select name="region" class="region-dropdown">
+                <option value="">All Regions</option>
+                <option value="North Africa">North Africa</option>
+                <option value="West Africa">West Africa</option>
+                <option value="Central Africa">Central Africa</option>
+                <option value="East Africa">East Africa</option>
+                <option value="South Africa">South Africa</option>
+                {% for region in unique_regions %}
+                    <option value="{{ region }}" {% if selected_region == region %}selected{% endif %}>{{ region }}</option>
+                {% endfor %}
+                <option value="Others" {% if selected_region == 'Others' %}selected{% endif %}>Others</option>
+            </select>
+            <input class="searchbar" type="search" name="search" placeholder="Search" value="{{ search_query if search_query else '' }}" required>
+            <img src="{{ url_for('static', filename='images/search-icon.png') }}" alt="Search" class='search-icon' onclick="this.closest('form').submit();">
+        </div>
+    </form>
+</div>
+
+<h2>Today's Menu</h2>
+
+<div class="item-container">
+    {% if items %}
+        {% for item in items %}
+            <div class="item-card">
+                <a href="{{ url_for('item_details', item_id=item.id) }}">
+                    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+                </a>
+                <div class="item-details">
+                    <h2>{{ item.name }}</h2>
+                    <p>₹{{ item.amount }}</p>
+                    <p>Vendor: {{ item.seller.name }}</p>
+                    <p>Stock: {{ item.stock }}</p>
+                    <p>{{ item.type }}</p>
+                    <p>{{ item.region }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No items found.</p>
+    {% endif %}
+</div>
+
+<h2>Our Vendors</h2>
+<div class="user-carousel-container">
+    <div class="user-carousel">
+        {% for user in users %}
+            {% if user.role == 'vendor' %}
+                <div class="user-card">
+                    <a href="{{ url_for('vendor_details', vendor_id=user.id) }}">
+                        <img src="{{ url_for('static', filename=user.profile_image if user.profile_image else 'images/default-user.jpg') }}" alt="User Image">
+                    </a>
+                    <div class="user-details">
+                        <h3>{{ user.name }}</h3>
+                        <p>ID: {{ user.id }}</p>
+                        <p>Email: {{ user.email }}</p>
+                        <p>Phone: {{ user.phone }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock content %}

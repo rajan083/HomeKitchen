@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Details{% endblock title %}
+
+{% block content %}
+
+<div class="vendor-details-container">
+    <img src="{{ url_for('static', filename=vendor.profile_image if vendor.profile_image else 'images/default-user.jpg') }}" alt="Vendor Image">
+    <div>
+        <h2>{{ vendor.name }}</h2>
+        <p>Email: {{ vendor.email }}</p>
+        <p>Phone: {{ vendor.phone }}</p>
+    </div>
+
+</div>
+
+<h2>Items Listed by {{ vendor.name }}</h2>
+
+<div class="item-container">
+    {% if items %}
+        {% for item in items %}
+            <div class="item-card">
+                <a href="{{ url_for('item_details', item_id=item.id) }}">
+                    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+                </a>
+                <div class="item-details">
+                    <h2>{{ item.name }}</h2>
+                    <p>₹{{ item.amount }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No items found for this vendor.</p>
+    {% endif %}
+</div>
+
+{% endblock content %}
