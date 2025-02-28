@@ -709,3 +709,63 @@ footer {
     background-color: #959595;
     border: 1px #ddd solid;
 }
+
+.profile-container{
+    display: flex;
+    margin: 10px;
+    padding: 50px;
+    justify-content: center;
+    gap: 20px;
+}
+.data{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+}
+.cred{
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+}
+.unchangeable{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 100px;
+
+}
+.changeable{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 100px;
+}
+.sub-change{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.address{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin-top: 85px;
+}
+.data input{
+    width: 100%;
+    height: auto;
+    border: 0.5px #000000 solid;
+    border-radius: 5px;
+    padding: 6px 15px;
+}
+.profile-submit{
+    width: 45%;
+    margin-top: -150px;
+    margin-left: 200px;
+}
+.profile-submit:hover, .profile-submit:active{
+    width: 45%;
+    margin-top: -150px;
+    margin-left: 200px;
+    background-color: #000000;
+    color: #D9D9D9;
+}

@@ -13,35 +13,47 @@
 </div>
 
 
-<div class="card-container">
-    <div class="card">
+<div class="profile-container">
+    <div class="profile">
         <form method="POST" action="{{ url_for('profile') }}">
-            <label for="profile_image">
-                <img id="profilePreview" src="{{ url_for('static', filename=user.photo if user.photo else 'images/default-user.jpg') }}" 
-                     alt="Profile Image" style="width: 120px; height: 120px; border: 1px solid #000; border-radius: 50%; margin-left: 15px;">
-            </label>
-            
-            <input type="file" id="profile_image" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)">
-            
-            <br><br>
-            <input type="email" placeholder='Email' id="email" value="{{ user.email }}" disabled>
-            <small class="text-muted">Email cannot be changed</small>
-            <input type="text" placeholder='Name' id="name" name="name" value="{{ user.name }}" required>
-            <input type="tel" placeholder='Phone' id="phone" name="phone" value="{{ user.phone }}" required>
-            {% if user.role == 'vendor' %}
-            <div>
-                <input type="text" placeholder='Upi Id' id="upi_id" name="upi_id" value="{{ user.upi_id }}">
+            <div class='data'>
+                <label for="profile_image">
+                    <img id="profilePreview" src="{{ url_for('static', filename=user.photo if user.photo else 'images/default-user.jpg') }}" 
+                         alt="Profile Image" style="width: 130px; height: 130px; border: 1px solid #000; border-radius: 50%; margin-left: 25px; margin-top: 100px; margin-right: -10px;">
+                </label>
+                <input type="file" id="profile_image" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                <div class='cred'>
+                    <div class='unchangeable'>
+                        <div>
+                            <input type="email" placeholder='Email' id="email" value="{{ user.email }}" disabled><br>
+                            <small class="text-muted">Email cannot be changed</small>
+                        </div>
+                        <h2 style='margin-top: -2px;'>{{ user.business_name }}</h2>
+                    </div>
+        
+                    <div class= 'changeable'>
+                        <div class= 'sub-change'>
+                            <input type="text" placeholder='Name' id="name" name="name" value="{{ user.name }}" required>
+                            <input type="tel" placeholder='Phone' id="phone" name="phone" value="{{ user.phone }}" required>
+                            {% if user.role == 'vendor' %}
+                            <input type="text" placeholder='Upi Id' id="upi_id" name="upi_id" value="{{ user.upi_id }}">
+                            {% endif %}
+                        </div>
+                        <div class= 'sub-change'>
+                            <input type="password" placeholder='Current password' id="current_password" name="current_password">
+                            <input type="password" placeholder='New password' id="new_password" name="new_password">
+                            <input type="password" placeholder='New password' id="confirm_password" name="confirm_password">
+                        </div>
+                    </div>
+                </div>
+                <div class='address'>
+                    {% if user.role == 'vendor' %}
+                    <p><strong>Address:</strong> {{ user.address }}</p>
+                    <div id="map" style="height: 400px; width: 400px; border-radius: 12px;"></div>
+                    {% endif %}
+                </div>
             </div>
-            <h2>{{ user.business_name }}</h2>
-            <p><strong>Address:</strong> {{ user.address }}</p>
-            <div id="map" style="height: 400px; width: 100%; border-radius: 12px;"></div>
-            {% endif %}
-            <hr>
-            <h4>Change Password</h4>    
-            <input type="password" placeholder='Current password' id="current_password" name="current_password">
-            <input type="password" placeholder='New password' id="new_password" name="new_password">
-            <input type="password" placeholder='New password' id="confirm_password" name="confirm_password">
-            <button type="submit">Update Profile</button>
+            <button type="submit" class='profile-submit'>Update Profile</button>
         </form>
     </div>
     

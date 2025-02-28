@@ -905,7 +905,7 @@ def cancel_order(order_id):
     order.status = "cancelled"
     db.session.commit()
 
-    seller = User.query.filter_by(email=order.seller_email).first()
+    seller = User.query.filter_by(email=order.user_email).first()
     
     if seller:
         send_cancellation_email(seller.email, order)
@@ -1079,7 +1079,6 @@ def profile():
         try:
             user.name = request.form.get('name')
             user.phone = request.form.get('phone')
-            
             current_password = request.form.get('current_password')
             new_password = request.form.get('new_password')
             confirm_password = request.form.get('confirm_password')
@@ -1094,7 +1093,7 @@ def profile():
                     return redirect(url_for('profile'))
                 
                 user.set_password(new_password)
-            
+
             if user.role == 'vendor':
                 user.upi_id = request.form.get('upi_id')
             
@@ -1122,9 +1121,9 @@ Your HomeKitchen Team
             db.session.rollback()
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
-        
     
     return render_template('profile.html', user=user)
+
 
 
 
