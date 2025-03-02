@@ -15,7 +15,7 @@
 
 <div class="profile-container">
     <div class="profile">
-        <form method="POST" action="{{ url_for('profile') }}">
+        <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
             <div class='data'>
                 <label for="profile_image">
                     <img id="profilePreview" src="{{ url_for('static', filename=user.photo if user.photo else 'images/default-user.jpg') }}" 
@@ -47,40 +47,66 @@
                     </div>
                 </div>
                 <div class='address'>
-                    {% if user.role == 'vendor' %}
                     <p><strong>Address:</strong> {{ user.address }}</p>
-                    <div id="map" style="height: 400px; width: 400px; border-radius: 12px;"></div>
-                    {% endif %}
+                    <input type="text" placeholder='Address' id="address" name="address" value="{{ user.address }}" required>
+                    <label for="latitude">Latitude:</label>
+                    <input type="text" id="latitude" name="latitude" value="{{ user.latitude }}" required>
+            
+                    <label for="longitude">Longitude:</label>
+                    <input type="text" id="longitude" name="longitude" value="{{ user.longitude }}" required>
+            
+                    <button type="button" onclick="getLocation()">Get Location</button>
+                    <div id="map" style="height: 400px; width: 400px; border-radius: 12px; margin-top: 10px;"></div>
                 </div>
             </div>
             <button type="submit" class='profile-submit'>Update Profile</button>
         </form>
     </div>
     
-<script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const newPassword = document.getElementById('new_password').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
-        const currentPassword = document.getElementById('current_password').value;
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const currentPassword = document.getElementById('current_password').value;
 
-        if (newPassword || confirmPassword || currentPassword) {
-            if (!currentPassword) {
-                e.preventDefault();
-                alert('Please enter your current password to change password');
+            if (newPassword || confirmPassword || currentPassword) {
+                if (!currentPassword) {
+                    e.preventDefault();
+                    alert('Please enter your current password to change password');
+                }
+                if (newPassword !== confirmPassword) {
+                    e.preventDefault();
+                    alert('New passwords do not match');
+                }
             }
-            if (newPassword !== confirmPassword) {
-                e.preventDefault();
-                alert('New passwords do not match');
-            }
+        });
+    </script>
+    <script>
+        function initMap() {
+            // Default coordinates if user doesn't have them set yet
+            var defaultLat = 20.5937;
+            var defaultLng = 78.9629;
+            
+            var lat = {{ user.latitude|default(defaultLat, true) }};
+            var lng = {{ user.longitude|default(defaultLng, true) }};
+            
+            var businessLocation = {lat: lat, lng: lng};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15, 
+                center: businessLocation
+            });
+            var marker = new google.maps.Marker({
+                position: businessLocation, 
+                map: map,
+                draggable: true
+            });
+            
+            // Update form when marker is dragged
+            google.maps.event.addListener(marker, 'dragend', function(event) {
+                document.getElementById("latitude").value = event.latLng.lat();
+                document.getElementById("longitude").value = event.latLng.lng();
+            });
         }
-    });
-</script>
-<script>
-    function initMap() {
-        var businessLocation = {lat: parseFloat("{{ user.latitude }}"), lng: parseFloat("{{ user.longitude }}")};
-        var map = new google.maps.Map(document.getElementById('map'), {zoom: 15, center: businessLocation});
-        var marker = new google.maps.Marker({position: businessLocation, map: map});
-    }
     </script>
     <script>
         function previewImage(event) {
@@ -90,6 +116,44 @@
                 output.src = reader.result;
             };
             reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById("latitude").value = position.coords.latitude;
+                    document.getElementById("longitude").value = position.coords.longitude;
+                    
+                    // Update map with new location
+                    var newLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 15,
+                        center: newLocation
+                    });
+                    
+                    var marker = new google.maps.Marker({
+                        position: newLocation,
+                        map: map,
+                        draggable: true
+                    });
+                    
+                    // Update form when marker is dragged
+                    google.maps.event.addListener(marker, 'dragend', function(event) {
+                        document.getElementById("latitude").value = event.latLng.lat();
+                        document.getElementById("longitude").value = event.latLng.lng();
+                    });
+                    
+                }, function(error) {
+                    alert("Error getting location: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
         }
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-ZoIbb0vLDv2SGuzdHQeZ4V1kIJeDk7U&callback=initMap"></script>

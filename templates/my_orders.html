@@ -11,6 +11,7 @@
                     <strong>Item:</strong> {{ order.item_name }} <br>
                     <strong>Amount:</strong> ₹{{ order.amount }} <br>
                     <strong>Payment Link:</strong> <a href="{{ order.upi_link }}" target="_blank">Pay Now</a> <br>
+                    <strong>Order Page:</strong> <a href="{{ url_for('payment_page', order_id= order.id) }}" target="_blank">To order page</a> <br>
                     <strong>Status:</strong> {{ order.status }} <br>
                 </li>
                 <hr>

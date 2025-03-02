@@ -5,7 +5,12 @@
 {% block content %}
 
 <div class="top-right-buttons">
-    <a href="{{url_for('logout')}}"><button>Logout</button></a>
+    {% if session.get('user_role') == 'vendor' %}
+        <a href="{{ url_for('additems') }}"><button>Add Item</button></a>
+    {% elif session.get('user_role') == 'consumer' %}
+        <a href="{{ url_for('my_orders') }}"><button>My Orders</button></a>
+    {% endif %}
+    <a href="{{ url_for('logout') }}"><button>Logout</button></a>
 </div>
 
 <div class="search-container">
