@@ -9,152 +9,170 @@
         <a href="{{ url_for('additems') }}"><button>Add Items</button></a>
     {% elif user.role == 'consumer' %}
         <a href="{{ url_for('my_orders') }}"><button>My Orders</button></a>
+    {% elif user.role =='rider' %}
+        <a href="{{ url_for('rider_orders', rider_id=user.id)}}"><button>Assigned Orders</button></a>
     {% endif %}
+    <a href="{{ url_for('logout')}}"><button>Logout</button></a>
+    <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible!');">
+        <button type="submit" class="btn btn-danger">Delete My Account</button>
+    </form>
 </div>
 
-
-<div class="profile-container">
-    <div class="profile">
-        <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
-            <div class='data'>
-                <label for="profile_image">
-                    <img id="profilePreview" src="{{ url_for('static', filename=user.photo if user.photo else 'images/default-user.jpg') }}" 
-                         alt="Profile Image" style="width: 130px; height: 130px; border: 1px solid #000; border-radius: 50%; margin-left: 25px; margin-top: 100px; margin-right: -10px;">
-                </label>
-                <input type="file" id="profile_image" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)">
-                <div class='cred'>
-                    <div class='unchangeable'>
-                        <div>
-                            <input type="email" placeholder='Email' id="email" value="{{ user.email }}" disabled><br>
-                            <small class="text-muted">Email cannot be changed</small>
+<div class= 'profile-page'>
+    <div class="profile-container">
+        <div class="profile">
+            <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                <div class='data'>
+                    <label for="profile_image">
+                        <img id="profilePreview" src="{{ url_for('static', filename=user.photo if user.photo else 'images/default-user.jpg') }}" 
+                            alt="Profile Image" style="width: 130px; height: 130px; border: 1px solid #000; border-radius: 50%; margin-left: 25px; margin-top: 100px; margin-right: -10px;">
+                    </label>
+                    <input type="file" id="profile_image" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                    <div class='cred'>
+                        <div class='unchangeable'>
+                            <div>
+                                <input type="email" placeholder='Email' id="email" value="{{ user.email }}" disabled><br>
+                                <small class="text-muted">Email cannot be changed</small>
+                            </div>
+                            <h2 style='margin-top: -2px;'>{{ user.business_name }}</h2>
                         </div>
-                        <h2 style='margin-top: -2px;'>{{ user.business_name }}</h2>
+            
+                        <div class= 'changeable'>
+                            <div class= 'sub-change'>
+                                <input type="text" placeholder='Name' id="name" name="name" value="{{ user.name }}" required>
+                                <input type="tel" placeholder='Phone' id="phone" name="phone" value="{{ user.phone }}" required>
+                                {% if user.role == 'vendor' %}
+                                <input type="text" placeholder='Upi Id' id="upi_id" name="upi_id" value="{{ user.upi_id }}">
+                                {% endif %}
+                            </div>
+                            <div class= 'sub-change'>
+                                <input type="password" placeholder='Current password' id="current_password" name="current_password">
+                                <input type="password" placeholder='New password' id="new_password" name="new_password">
+                                <input type="password" placeholder='New password' id="confirm_password" name="confirm_password">
+                            </div>
+                        </div>
                     </div>
-        
-                    <div class= 'changeable'>
-                        <div class= 'sub-change'>
-                            <input type="text" placeholder='Name' id="name" name="name" value="{{ user.name }}" required>
-                            <input type="tel" placeholder='Phone' id="phone" name="phone" value="{{ user.phone }}" required>
-                            {% if user.role == 'vendor' %}
-                            <input type="text" placeholder='Upi Id' id="upi_id" name="upi_id" value="{{ user.upi_id }}">
-                            {% endif %}
-                        </div>
-                        <div class= 'sub-change'>
-                            <input type="password" placeholder='Current password' id="current_password" name="current_password">
-                            <input type="password" placeholder='New password' id="new_password" name="new_password">
-                            <input type="password" placeholder='New password' id="confirm_password" name="confirm_password">
-                        </div>
+                    <div class='address'>
+                        <p><strong>Address:</strong> {{ user.address }}</p>
+                        <input type="text" placeholder='Address' id="address" name="address" value="{{ user.address }}" required>
+                        <label for="latitude">Latitude:</label>
+                        <input type="text" id="latitude" name="latitude" value="{{ user.latitude }}" required>
+                
+                        <label for="longitude">Longitude:</label>
+                        <input type="text" id="longitude" name="longitude" value="{{ user.longitude }}" required>
+                
+                        <button type="button" onclick="getLocation()">Get Location</button>
+                        <div id="map" style="height: 400px; width: 400px; border-radius: 12px; margin-top: 10px;"></div>
                     </div>
                 </div>
-                <div class='address'>
-                    <p><strong>Address:</strong> {{ user.address }}</p>
-                    <input type="text" placeholder='Address' id="address" name="address" value="{{ user.address }}" required>
-                    <label for="latitude">Latitude:</label>
-                    <input type="text" id="latitude" name="latitude" value="{{ user.latitude }}" required>
-            
-                    <label for="longitude">Longitude:</label>
-                    <input type="text" id="longitude" name="longitude" value="{{ user.longitude }}" required>
-            
-                    <button type="button" onclick="getLocation()">Get Location</button>
-                    <div id="map" style="height: 400px; width: 400px; border-radius: 12px; margin-top: 10px;"></div>
-                </div>
-            </div>
-            <button type="submit" class='profile-submit'>Update Profile</button>
-        </form>
-    </div>
-    
-    <script>
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const newPassword = document.getElementById('new_password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-            const currentPassword = document.getElementById('current_password').value;
+                <button type="submit" class='profile-submit'>Update Profile</button>
+            </form>
+        </div>
 
-            if (newPassword || confirmPassword || currentPassword) {
-                if (!currentPassword) {
-                    e.preventDefault();
-                    alert('Please enter your current password to change password');
+        <script>
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('new_password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                const currentPassword = document.getElementById('current_password').value;
+
+                if (newPassword || confirmPassword || currentPassword) {
+                    if (!currentPassword) {
+                        e.preventDefault();
+                        alert('Please enter your current password to change password');
+                    }
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('New passwords do not match');
+                    }
                 }
-                if (newPassword !== confirmPassword) {
-                    e.preventDefault();
-                    alert('New passwords do not match');
-                }
-            }
-        });
-    </script>
-    <script>
-        function initMap() {
-            // Default coordinates if user doesn't have them set yet
-            var defaultLat = 20.5937;
-            var defaultLng = 78.9629;
-            
-            var lat = {{ user.latitude|default(defaultLat, true) }};
-            var lng = {{ user.longitude|default(defaultLng, true) }};
-            
-            var businessLocation = {lat: lat, lng: lng};
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 15, 
-                center: businessLocation
             });
-            var marker = new google.maps.Marker({
-                position: businessLocation, 
-                map: map,
-                draggable: true
-            });
-            
-            // Update form when marker is dragged
-            google.maps.event.addListener(marker, 'dragend', function(event) {
-                document.getElementById("latitude").value = event.latLng.lat();
-                document.getElementById("longitude").value = event.latLng.lng();
-            });
-        }
-    </script>
-    <script>
-        function previewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function(){
-                var output = document.getElementById('profilePreview');
-                output.src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
-    </script>
-    <script>
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById("latitude").value = position.coords.latitude;
-                    document.getElementById("longitude").value = position.coords.longitude;
-                    
-                    // Update map with new location
-                    var newLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    
-                    var map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 15,
-                        center: newLocation
-                    });
-                    
-                    var marker = new google.maps.Marker({
-                        position: newLocation,
-                        map: map,
-                        draggable: true
-                    });
-                    
-                    // Update form when marker is dragged
-                    google.maps.event.addListener(marker, 'dragend', function(event) {
-                        document.getElementById("latitude").value = event.latLng.lat();
-                        document.getElementById("longitude").value = event.latLng.lng();
-                    });
-                    
-                }, function(error) {
-                    alert("Error getting location: " + error.message);
+        </script>
+        <script>
+            function initMap() {
+                // Default coordinates if user doesn't have them set yet
+                var defaultLat = 20.5937;
+                var defaultLng = 78.9629;
+                
+                var lat = {{ user.latitude|default(defaultLat, true) }};
+                var lng = {{ user.longitude|default(defaultLng, true) }};
+                
+                var businessLocation = {lat: lat, lng: lng};
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 15, 
+                    center: businessLocation
                 });
-            } else {
-                alert("Geolocation is not supported by this browser.");
+                var marker = new google.maps.Marker({
+                    position: businessLocation, 
+                    map: map,
+                    draggable: true
+                });
+                
+                // Update form when marker is dragged
+                google.maps.event.addListener(marker, 'dragend', function(event) {
+                    document.getElementById("latitude").value = event.latLng.lat();
+                    document.getElementById("longitude").value = event.latLng.lng();
+                });
             }
-        }
-    </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-ZoIbb0vLDv2SGuzdHQeZ4V1kIJeDk7U&callback=initMap"></script>
+        </script>
+        <script>
+            function previewImage(event) {
+                var reader = new FileReader();
+                reader.onload = function(){
+                    var output = document.getElementById('profilePreview');
+                    output.src = reader.result;
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        </script>
+        <script>
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        document.getElementById("latitude").value = position.coords.latitude;
+                        document.getElementById("longitude").value = position.coords.longitude;
+                        
+                        // Update map with new location
+                        var newLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        var map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 15,
+                            center: newLocation
+                        });
+                        
+                        var marker = new google.maps.Marker({
+                            position: newLocation,
+                            map: map,
+                            draggable: true
+                        });
+                        
+                        // Update form when marker is dragged
+                        google.maps.event.addListener(marker, 'dragend', function(event) {
+                            document.getElementById("latitude").value = event.latLng.lat();
+                            document.getElementById("longitude").value = event.latLng.lng();
+                        });
+                        
+                    }, function(error) {
+                        alert("Error getting location: " + error.message);
+                    });
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+        </script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-ZoIbb0vLDv2SGuzdHQeZ4V1kIJeDk7U&callback=initMap"></script>
+    </div>
+    {% if user.role == 'rider' %}
+    <div class="stat-card-container">
+        <h3>Rider Statistics</h3>
+        <div class="stat-cards">
+            <p class='stat-value'><strong>Total Deliveries:</strong> {{ total_deliveries }}</p>
+            <p class='stat-value'><strong>Earnings This Month:</strong> ₹{{ monthly_earnings }}</p>
+            <p class='stat-value'><strong>Earnings This Week:</strong> ₹{{ weekly_earnings }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

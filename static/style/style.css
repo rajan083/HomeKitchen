@@ -654,6 +654,32 @@ footer {
     color: #958585;
     background-color: #D9D9D9;
 }
+
+
+.stat-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.stat-cards{
+    display: flex;
+    gap: 40px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.stat-value{
+    text-align: center;
+    width: 30%;
+    height: 100px;
+    background-color: #222;
+    color: #ddd;
+    font-size: 26px;
+    border-radius: 8px;
+    border: 0.2px solid #000000; 
+}
+
+
+
 .newitem-button-container{
     display: flex;
     width: 100%;
@@ -768,4 +794,22 @@ footer {
     margin-left: 200px;
     background-color: #000000;
     color: #D9D9D9;
+}
+.profile-page{
+    display: flex;
+    flex-direction: column;
+}
+.assigned_order{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-content: end;
+    margin-bottom: 100px;
+}
+.assigned-order-table{
+    width:50%;
+}
+.assigned-order-table th, 
+.assigned-order-table td {
+    padding: 8px 15px;
 }

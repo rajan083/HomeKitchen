@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Riders</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .rider { border: 1px solid #ddd; padding: 15px; margin: 10px; display: inline-block; }
+        img { width: 150px; height: auto; margin: 10px; }
+        button { padding: 5px 10px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Admin - Verify Riders</h1>
+    <div id="riderList"></div>
+
+    <script>
+        async function fetchRiders() {
+            const response = await fetch('/get_unverified_riders');
+            const data = await response.json();
+            const riderList = document.getElementById('riderList');
+            riderList.innerHTML = "";
+
+            data.riders.forEach(rider => {
+                riderList.innerHTML += `
+                    <div class="rider">
+                        <p><strong>Name:</strong> ${rider.name}</p>
+                        <p><strong>Email:</strong> ${rider.email}</p>
+                        <p><strong>Phone:</strong> ${rider.phone}</p>
+                        <p><strong>ID Proof:</strong> <img src="${rider.id_proof}" alt="ID Proof"></p>
+                        <p><strong>License:</strong> <img src="${rider.license}" alt="License"></p>
+                        <p><strong>Insurance:</strong> <img src="${rider.insurance}" alt="Insurance"></p>
+                        <p><strong>Photo:</strong> <img src="${rider.photo}" alt="Rider Photo"></p>
+                        <button onclick="verifyRider(${rider.id})">Verify</button>
+                    </div>
+                `;
+            });
+        }
+
+        async function verifyRider(riderId) {
+            const response = await fetch(`/verify_rider/${riderId}`, { method: 'POST' });
+            const data = await response.json();
+            alert(data.message);
+            fetchRiders();
+        }
+
+        fetchRiders(); // Load riders on page load
+    </script>
+
+</body>
+</html>

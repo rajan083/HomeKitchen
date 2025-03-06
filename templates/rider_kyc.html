@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Rider KYC{% endblock title %}
+{% block content %}
+<div>
+    <div class="riderkyc-container">
+        <h2>Rider KYC Submission</h2>
+        <form action="/rider_kyc" method="POST" enctype="multipart/form-data">
+            <input type="text" id="name"  placeholder="Name" name="Name" required>
+            <input type="tel" id="phone" placeholder="Phone" name="Phone" required><br>
+            <input type="email" id="email" placeholder="Email" name="Email" required>
+            <input type="password" id="password" placeholder="Password" name="Password" required><br>
+            <select name= "Vehicle_type">
+                <option value= 'two-wheeler'>Two Wheeler</option>
+                <option value= 'four-wheeler'>Four Wheeler</option>
+                <option value= 'cycle'>Cycle</option>
+                <option value= 'by-foot'>By-Foot</option>
+            </select>
+            <input type='text' placeholder='Vehicle Number' name= 'Vehicle_number'><small>If applicable.</small><br>
+            <input type="file" id="id_proof" name="Id_proof" placeholder="Id Proof" accept="image/*,.pdf" required>
+            <input type="file" id="license" name="License" placeholder="Driver License" accept="image/*,.pdf" required><br>
+            <input type="file" id="insurance" name="Insurance" placeholder="Vehicle Insurance" accept="image/*,.pdf" required>
+            <input type="file" id="photo" name="Photo" placeholder="Upload recent photo" accept="image/*" required><br>
+            <button type="submit">Submit KYC</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

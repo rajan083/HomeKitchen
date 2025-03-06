@@ -7,6 +7,7 @@
 <div class="top-right-buttons">
     {% if session.get('user_role') == 'vendor' %}
         <a href="{{ url_for('additems') }}"><button>Add Item</button></a>
+        <a href="{{ url_for('terms') }}"><button>Terms</button></a>
     {% elif session.get('user_role') == 'consumer' %}
         <a href="{{ url_for('my_orders') }}"><button>My Orders</button></a>
     {% endif %}
