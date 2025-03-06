@@ -315,6 +315,8 @@ def login():
             return redirect(url_for('additems'))
         if user.role == "consumer":
             return redirect(url_for('dashboard'))
+        if user.role == "rider":
+            return redirect(url_for('profile'))
 
     return render_template('login.html')
 
@@ -914,8 +916,7 @@ def confirm_payment(order_id):
 
 @app.route('/cancel_order/<order_id>', methods=['POST'])
 def cancel_order(order_id):
-    order = Order.query.get(order_id)
-
+    order = db.session.get(Order, order_id)
     if not order:
         flash("Order not found.", "danger")
         return redirect(url_for("dashboard"))
@@ -1106,15 +1107,13 @@ def profile():
         flash('User not found.', 'danger')
         return redirect(url_for('logout'))
 
-    now = datetime.datetime.utcnow()  # Store current time to use consistently
+    now = datetime.datetime.utcnow()
 
     if request.method == 'POST':
         try:
-            # Updating user information
             user.name = request.form.get('name')
             user.phone = request.form.get('phone')
 
-            # Handle Password Update
             current_password = request.form.get('current_password')
             new_password = request.form.get('new_password')
             confirm_password = request.form.get('confirm_password')
@@ -1130,14 +1129,12 @@ def profile():
 
                 user.set_password(new_password)
 
-            # Update UPI ID for Vendors
             if user.role == 'vendor':
                 user.upi_id = request.form.get('upi_id')
 
             db.session.commit()
             flash('Profile updated successfully!', 'success')
 
-            # Send Profile Update Notification Email
             msg = Message(
                 'Profile Update Notification',
                 sender=app.config['MAIL_USERNAME'],
@@ -1155,36 +1152,35 @@ Your HomeKitchen Team
             """
             mail.send(msg)
 
-            return redirect(url_for('profile'))  # Return after processing POST request
+            return redirect(url_for('profile'))
 
         except Exception as e:
             db.session.rollback()
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
 
-    # Fetch Rider Statistics if user is a rider
     total_deliveries = 0
     monthly_earnings = 0
     weekly_earnings = 0
 
     if user.role == 'rider':
-        # Get total deliveries
         total_deliveries = Order.query.filter_by(rider_id=user.id, status='delivered').count()
 
-        # Get earnings for the current month
-        first_day_of_month = now.replace(day=1)
+        first_day_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_of_week = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
         monthly_earnings = db.session.query(func.sum(Order.rider_fee)).filter(
             Order.rider_id == user.id,
             Order.status == 'delivered',
-            Order.delivered_at >= first_day_of_month
+            Order.delivered_at >= first_day_of_month,
+            Order.delivered_at < now
         ).scalar() or 0
 
-        # Get earnings for the current week
-        start_of_week = now - timedelta(days=now.weekday())
         weekly_earnings = db.session.query(func.sum(Order.rider_fee)).filter(
             Order.rider_id == user.id,
             Order.status == 'delivered',
-            Order.delivered_at >= start_of_week
+            Order.delivered_at >= start_of_week,
+            Order.delivered_at < now
         ).scalar() or 0
 
     return render_template(
@@ -1194,6 +1190,8 @@ Your HomeKitchen Team
         monthly_earnings=monthly_earnings,
         weekly_earnings=weekly_earnings
     )
+    
+    
 
 #====================================================DELETE ACCOUNT================================================
 
@@ -1259,7 +1257,6 @@ def rider_kyc():
             flash("This email is already registered. Please log in or use a different email.", "danger")
             return redirect(url_for('rider_kyc'))
 
-        # Handling file uploads
         id_proof = request.files.get('Id_proof')
         license = request.files.get('License')
         insurance = request.files.get('Insurance')
@@ -1269,13 +1266,11 @@ def rider_kyc():
             flash("All KYC documents are required!", "danger")
             return redirect(url_for('rider_kyc'))
 
-        # Save files and get file paths
         id_proof_path = save_file(id_proof)
         license_path = save_file(license)
         insurance_path = save_file(insurance)
         photo_path = save_file(photo)
 
-        # Store in database
         new_rider = User(
             name=name,
             email=email,
@@ -1301,10 +1296,8 @@ def rider_kyc():
 
 
 def save_file(file):
-    """Save uploaded file and return just the filename."""
     if file and file.filename:
         filename = secure_filename(file.filename)
-        # Generate a unique filename to prevent overwriting
         unique_filename = f"{int(time.time())}_{filename}"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
         file.save(filepath)
@@ -1312,9 +1305,9 @@ def save_file(file):
     return None
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+# @app.route('/uploads/<filename>')
+# def uploaded_file(filename):
+#     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 
@@ -1358,23 +1351,11 @@ def get_unverified_riders():
     return jsonify({'riders': rider_list})
 
 
-@app.route('/verify_rider/<int:rider_id>', methods=['POST'])
-def verify_rider(rider_id):
-    rider = User.query.get(rider_id)
-    if not rider:
-        return jsonify({'error': 'Rider not found'}), 404
-
-    rider.verified = True
-    db.session.commit()
-    return jsonify({'message': f'Rider {rider.name} verified successfully!'}), 200
-
 
 @app.route('/verify_riders', methods=['GET'])
 def verify_riders():
-    # Explicitly fetch unverified riders with role="rider"
     riders = User.query.filter_by(role="rider", verified=False).all()
     
-    # Create a list of rider data with direct image paths
     riders_data = []
     for rider in riders:
         rider_info = {
@@ -1392,22 +1373,33 @@ def verify_riders():
     return render_template('verify_riders.html', riders=riders_data)
 
 
-@app.route('/get_rider_details/<int:rider_id>', methods=['GET'])
-def get_rider_details(rider_id):
+@app.route('/verify_rider/<int:rider_id>', methods=['POST'])
+def verify_rider(rider_id):
     rider = User.query.get(rider_id)
     if not rider:
         return jsonify({'error': 'Rider not found'}), 404
 
-    return jsonify({
-        "id": rider.id,
-        "name": rider.name,
-        "email": rider.email,
-        "phone": rider.phone,
-        "id_proof": f"/uploads/{rider.id_proof}" if rider.id_proof else "",
-        "license": f"/uploads/{rider.license}" if rider.license else "",
-        "insurance": f"/uploads/{rider.insurance}" if rider.insurance else "",
-        "photo": f"/uploads/{rider.photo}" if rider.photo else ""
-    })
+    rider.verified = True
+    db.session.commit()
+    return jsonify({'message': f'Rider {rider.name} verified successfully!'}), 200
+
+
+# @app.route('/get_rider_details/<int:rider_id>', methods=['GET'])
+# def get_rider_details(rider_id):
+#     rider = User.query.get(rider_id)
+#     if not rider:
+#         return jsonify({'error': 'Rider not found'}), 404
+
+#     return jsonify({
+#         "id": rider.id,
+#         "name": rider.name,
+#         "email": rider.email,
+#         "phone": rider.phone,
+#         "id_proof": f"/uploads/{rider.id_proof}" if rider.id_proof else "",
+#         "license": f"/uploads/{rider.license}" if rider.license else "",
+#         "insurance": f"/uploads/{rider.insurance}" if rider.insurance else "",
+#         "photo": f"/uploads/{rider.photo}" if rider.photo else ""
+#     })
     
     
     
@@ -1416,15 +1408,12 @@ def get_rider_details(rider_id):
 @app.route('/assign_order', methods=['GET', 'POST'])
 def assign_order():
     if request.method == 'POST':
-        # Get order and rider IDs from the form
         order_id = request.form.get('order_id')
         rider_id = request.form.get('rider_id')
         
-        # Fetch the order and rider from the database
-        order = Order.query.get(order_id)
+        order = db.session.get(Order, order_id)
         rider = User.query.get(rider_id)
         
-        # Check that order exists and the selected user is indeed a rider
         if not order:
             flash("Order not found!", "danger")
             return redirect(url_for('assign_order'))
@@ -1432,13 +1421,12 @@ def assign_order():
             flash("Invalid rider selected!", "danger")
             return redirect(url_for('assign_order'))
         
-        # Assign the rider and update order status
         order.rider_id = rider_id
         order.status = "Assigned to Rider"
         db.session.commit()
         
         flash(f"Order {order.id} has been assigned to {rider.name}!", "success")
-        return redirect(url_for('additems'))  # or any appropriate page
+        return redirect(url_for('additems'))
 
     else:
         orders = Order.query.filter(Order.rider_id == None).all()
@@ -1457,25 +1445,24 @@ def complete_delivery(order_id):
         flash("Invalid order or already completed!", "danger")
         return redirect(url_for('dashboard'))
 
-    # Calculate rider earnings
     order.rider_fee = calculate_rider_fee(order.amount)
     order.status = 'delivered'
+    order.delivered_at = datetime.utcnow()
+
     db.session.commit()
 
     flash("Order marked as delivered! Rider earnings updated.", "success")
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('profile'))
 
 
 
 @app.route('/rider_orders/<int:rider_id>', methods=['GET'])
 def rider_orders(rider_id):
-    # Get orders assigned to this rider
     orders = Order.query.filter_by(rider_id=rider_id).all()
     
     order_list = []
     for order in orders:
-        # Get consumer details
-        consumer = User.query.get(order.consumer_id) if order.consumer_id else None
+        consumer = db.session.get(User, order.consumer_id) if order.consumer_id else None
         consumer_details = None
         if consumer:
             consumer_details = {
@@ -1485,8 +1472,7 @@ def rider_orders(rider_id):
                 "email": consumer.email
             }
         
-        # Get vendor details
-        vendor = User.query.get(order.vendor_id) if order.vendor_id else None
+        vendor = db.session.get(User, order.vendor_id) if order.vendor_id else None
         vendor_details = None
         if vendor:
             vendor_details = {
@@ -1496,7 +1482,6 @@ def rider_orders(rider_id):
                 "email": vendor.email
             }
         
-        # Create order object with all necessary details
         order_data = {
             "id": order.id,
             "item_name": order.item_name,
@@ -1516,28 +1501,24 @@ def rider_orders(rider_id):
 
 @app.route('/update_order_status/<string:order_id>/<string:status>', methods=['GET'])
 def update_order_status(order_id, status):
-    # Check if the user is a rider
     if "user_role" not in session or session.get("user_role") != "rider":
         flash("Only riders can update order status.", "danger")
         return redirect(url_for("dashboard"))
     
-    # Get the order
-    order = Order.query.get(order_id)
+    order = db.session.get(Order, order_id)
     if not order:
         flash("Order not found.", "danger")
         return redirect(url_for("dashboard"))
     
-    # Verify this rider is assigned to this order
     if order.rider_id != session.get("user_id"):
         flash("You are not assigned to this order.", "danger")
         return redirect(url_for("dashboard"))
     
-    # Update the status
     if status == "in-transit":
-        order.status = "In Transit"
+        order.status = "in-transit"
         flash("Order marked as In Transit.", "success")
     elif status == "delivered":
-        order.status = "Delivered"
+        order.status = "delivered"
         flash("Order marked as Delivered.", "success")
     else:
         flash("Invalid status.", "danger")
@@ -1558,7 +1539,6 @@ import pandas as pd
 from sqlalchemy import inspect
 
 def export_all_tables_to_excel(excel_filename='database_export.xlsx'):
-    """Exports all tables from the database to an Excel file."""
     with app.app_context():
         engine = db.engine
         inspector = inspect(engine)
