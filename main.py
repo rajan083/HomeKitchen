@@ -17,7 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key= 'SecretKey'
-app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///user.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost/HomeKitchen'
 db=SQLAlchemy(app)
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -27,13 +27,6 @@ app.config['MAIL_USERNAME'] = 'rm4952989@gmail.com'
 app.config['MAIL_PASSWORD'] = 'qytf jjpo fxfa wlav'
 app.config['MAIL_DEFAULT_SENDER'] = 'rm4952989@gmail.com'
 mail = Mail(app)
-
-
-TWILIO_ACCOUNT_SID = 'your_account_sid'
-TWILIO_AUTH_TOKEN = 'your_auth_token'
-TWILIO_PHONE_NUMBER = 'your_twilio_number'
-twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
 
 verification_tokens={}
 
@@ -181,23 +174,27 @@ def home():
 
 
 
-
 @app.route('/send_verification', methods=['GET', 'POST'])
 def send_verification():
     if request.method == 'POST':
         email = request.form.get('Email')
         user = User.query.filter_by(email=email).first()
+        rider = Rider_kyc.query.filter_by(email=email).first()
 
-        if not user:
+        if not user and not rider:
             flash('Email not registered!', 'danger')
             return redirect(url_for('register'))
 
-        if user.email_verified:
+        # Determine which user object to use
+        account = user if user else rider
+            
+        if account.email_verified:
             flash('Email already verified!', 'info')
             return redirect(url_for('login'))
 
         token = secrets.token_urlsafe(16)
-        verification_tokens[token] = email
+        # Store both email and account type for verification
+        verification_tokens[token] = {'email': email, 'type': 'user' if user else 'rider'}
         
         verification_link = url_for('verify_email', token=token, _external=True)
         msg = Message('Verify Your Email', recipients=[email])
@@ -213,23 +210,39 @@ def send_verification():
 
     return render_template('verify_email.html')
 
-    
-
 @app.route('/verify_email/<token>')
 def verify_email(token):
-    email = verification_tokens.get(token)
+    token_data = verification_tokens.get(token)
 
-    if email:
-        user = User.query.filter_by(email=email).first()
-        if user:
-            user.email_verified = True
+    if token_data:
+        email = token_data['email']
+        account_type = token_data['type']
+        
+        if account_type == 'user':
+            account = User.query.filter_by(email=email).first()
+        else:  # rider
+            account = Rider_kyc.query.filter_by(email=email).first()
+            
+        if account:
+            account.email_verified = True
             db.session.commit()
             del verification_tokens[token]
             flash(f'Email {email} verified successfully!', 'success')
-            return redirect(url_for('login'))
-    
+
+            # Role-based redirection
+            if isinstance(account, User):
+                if account.role == "vendor":
+                    return redirect(url_for('additems'))
+                elif account.role == "consumer":
+                    return redirect(url_for('dashboard'))
+                else:
+                    return redirect(url_for('dashboard'))  # Default for other roles
+            elif isinstance(account, Rider_kyc):
+                return redirect(url_for('profile'))  # Redirect riders to their profile page
+
     flash('Invalid or expired token!', 'danger')
     return redirect(url_for('home'))
+
 
 
 
@@ -272,7 +285,7 @@ def register():
         if role == 'consumer':
             return redirect(url_for('login'))
         elif role=='vendor':
-            return redirect(url_for('terms'))
+            return redirect(url_for('login'))
         else:
             return redirect(url_for('rider_kyc'))
     return render_template('register.html')
@@ -282,41 +295,39 @@ def register():
 
 #=================================================LOGIN================================================
 
-
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('Email')
         password = request.form.get('Password')
-        
+
         user = User.query.filter_by(email=email).first()
 
-        if not user or not user.check_password(password):
+        if user and user.check_password(password):
+            if not user.email_verified:
+                flash('Please verify your email before logging in.', 'warning')
+                return redirect(url_for('send_verification'))
+
+            session['user_id'] = user.id
+            session['user_role'] = user.role
+            session['user_email'] = user.email
+
+            email_sent = send_welcome_email(user.email, user.name, is_registration=False)
+            if not email_sent:
+                flash('Login successful, but notification email could not be sent.', 'warning')
+            else:
+                flash(f'Login successful as {user.role}! Login notification sent to your email.', 'success')
+
+            # Redirect based on role
+            if user.role == "vendor":
+                return redirect(url_for('additems'))
+            elif user.role == "consumer":
+                return redirect(url_for('dashboard'))
+            else:
+                return redirect(url_for('dashboard'))
+        else:
             flash('Invalid credentials', 'danger')
             return redirect(url_for('login'))
-
-        if not user.email_verified:
-            flash('Please verify your email before logging in.', 'warning')
-            return redirect(url_for('send_verification'))
-
-        session['user_id'] = user.id
-        session['user_role'] = user.role
-        session['user_email'] = user.email
-
-        email_sent = send_welcome_email(user.email, user.name, is_registration=False)
-        if not email_sent:
-            flash('Login successful, but notification email could not be sent.', 'warning')
-        else:
-            flash(f'Login successful as {user.role}! Login notification sent to your email.', 'success')
-
-        if user.role == "vendor":
-            return redirect(url_for('additems'))
-        if user.role == "consumer":
-            return redirect(url_for('dashboard'))
-        if user.role == "rider":
-            return redirect(url_for('profile'))
 
     return render_template('login.html')
 
@@ -369,8 +380,16 @@ def terms():
 
 #=================================================KYC================================================
 
-
-
+class Vendor_kyc(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    name= db.Column(db.String(100), nullable=False)
+    email= db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(10), nullable=False)
+    id_number= db.Column(db.String(100), nullable=False)
+    phone= db.Column(db.Integer, nullable=False, unique=True)
+    id_proof= db.Column(db.String(50), nullable=False)
+    photo_path= db.Column(db.String(50), nullable=False)
+    
 UPLOAD_FOLDER = 'static/UserInfo'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -381,30 +400,35 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def kyc():
     if request.method == 'POST':
         name = request.form.get('Name')
-        dob = request.form.get('Dob')
         email = request.form.get('Email')
         phone = request.form.get('Phone')
         id_number = request.form.get('Id_number')
+        id_proof = request.files.get('Id_proof')
 
-        id_proof = request.files["Id_proof"]
-        photo = request.files["Photo"]
-
-        if id_proof and id_proof.filename and photo and photo.filename:
-            id_proof_path = os.path.join(app.config['UPLOAD_FOLDER'], id_proof.filename)
-            photo_path = os.path.join(app.config['UPLOAD_FOLDER'], photo.filename)
-
-            try:
-                id_proof.save(id_proof_path)
-                photo.save(photo_path)
-                flash("KYC Submitted Successfully!", "success")
-                return redirect(url_for('kyc'))
-            except Exception as e:
-                flash(f"Error saving files: {str(e)}", "danger")
-                return redirect(url_for('kyc'))
-
-        else:
-            flash("Please upload required documents!", "danger")
+        existing_vendor = Vendor_kyc.query.filter_by(email=email).first()
+        if existing_vendor:
+            flash("This email is already registered. Please log in or use a different email.", "danger")
             return redirect(url_for('kyc'))
+
+        if not all([id_proof]):
+            flash("All KYC documents are required!", "danger")
+            return redirect(url_for('kyc'))
+
+        id_proof_path = save_file(id_proof)
+        new_vendor = Vendor_kyc(
+            name=name,
+            email=email,
+            phone=phone,
+            id_number=id_number,
+            role="vendor",
+            id_proof=id_proof_path,
+        )
+
+        db.session.add(new_vendor)
+        db.session.commit()
+
+        flash(f'KYC submitted successfully for {new_vendor.name}!', "success")
+        return redirect(url_for('profile'))
 
     return render_template('kyc.html')
 
@@ -1076,7 +1100,6 @@ Your HomeKitchen Team
         mail.send(email_msg)
 
         sms_message = f"New order received! Order ID: {order_id}, Item: {item_name}, Amount: ₹{amount}"
-        twilio_client.messages.create(body=sms_message, from_=TWILIO_PHONE_NUMBER, to=f"+91{seller.phone}")
 
         return True
     except Exception as e:
@@ -1088,13 +1111,6 @@ Your HomeKitchen Team
 
 #=================================================PROFILE================================================
 
-    
-    
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -1158,34 +1174,107 @@ Your HomeKitchen Team
             db.session.rollback()
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
+    return render_template('profile.html')
+    
+
+
+#====================================================RIDER PROFILE========================================================
+
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/rider_profile', methods=['GET', 'POST'])
+def rider_profile():
+    if 'rider_id' not in session:
+        flash('Please log in to access your profile.', 'danger')
+        return redirect(url_for('rider_login'))
+
+    rider= db.session.get(Rider_kyc, session['rider_id'])
+
+    if not rider:
+        flash('Rider not found.', 'danger')
+        return redirect(url_for('logout'))
+
+    now = datetime.datetime.utcnow()
+
+    if request.method == 'POST':
+        try:
+            rider.name = request.form.get('name')
+            rider.phone = request.form.get('phone')
+
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+
+            if current_password and new_password and confirm_password:
+                if not rider.check_password(current_password):
+                    flash('Current password is incorrect.', 'danger')
+                    return redirect(url_for('profile'))
+
+                if new_password != confirm_password:
+                    flash('New passwords do not match.', 'danger')
+                    return redirect(url_for('profile'))
+
+                rider.set_password(new_password)
+
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+
+            msg = Message(
+                'Profile Update Notification',
+                sender=app.config['MAIL_USERNAME'],
+                recipients=[rider.email]
+            )
+            msg.body = f"""
+Hello {rider.name},
+
+Your profile was recently updated. If you did not make these changes, please contact support immediately.
+
+Time of update: {now.strftime('%Y-%m-%d %H:%M:%S')} UTC
+
+Best regards,
+Your HomeKitchen Team
+            """
+            mail.send(msg)
+
+            return redirect(url_for('profile'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while updating your profile.', 'danger')
+            print(f"Profile update error: {str(e)}")
 
     total_deliveries = 0
     monthly_earnings = 0
     weekly_earnings = 0
 
-    if user.role == 'rider':
-        total_deliveries = Order.query.filter_by(rider_id=user.id, status='delivered').count()
+    if rider.role == 'rider':
+        total_deliveries = Order.query.filter_by(rider_id=rider.id, status='delivered').count()
 
         first_day_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         start_of_week = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
 
         monthly_earnings = db.session.query(func.sum(Order.rider_fee)).filter(
-            Order.rider_id == user.id,
+            Order.rider_id == rider.id,
             Order.status == 'delivered',
             Order.delivered_at >= first_day_of_month,
             Order.delivered_at < now
         ).scalar() or 0
 
         weekly_earnings = db.session.query(func.sum(Order.rider_fee)).filter(
-            Order.rider_id == user.id,
+            Order.rider_id == rider.id,
             Order.status == 'delivered',
             Order.delivered_at >= start_of_week,
             Order.delivered_at < now
         ).scalar() or 0
 
     return render_template(
-        'profile.html',
-        user=user,
+        'rider_profile.html',
+        rider=rider,
         total_deliveries=total_deliveries,
         monthly_earnings=monthly_earnings,
         weekly_earnings=weekly_earnings
@@ -1237,6 +1326,30 @@ app.config['UPLOAD_FOLDER'] = 'static/UserInfo'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+class Rider_kyc(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(15), nullable= False, unique=True)
+    email = db.Column(db.String(120),nullable=False, unique=True)
+    password_hash = db.Column(db.String(250), nullable=False)
+    role= db.Column(db.String(20), nullable=False)
+    created_at= db.Column(db.DateTime, default= datetime.datetime.utcnow)
+    email_verified = db.Column(db.Boolean, default=False)
+    address = db.Column(db.String(255), nullable=True)
+    vehicle_type= db.Column(db.String(50), nullable= True)
+    vehicle_number= db.Column(db.String(50), nullable=True)
+    id_proof = db.Column(db.String(200), nullable=True)
+    license = db.Column(db.String(200), nullable=True)
+    insurance = db.Column(db.String(200), nullable=True)
+    photo = db.Column(db.String(200), nullable=True)
+    verified = db.Column(db.Boolean, default=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
 
 @app.route('/rider_kyc', methods=['GET', 'POST'])
 def rider_kyc():
@@ -1252,8 +1365,8 @@ def rider_kyc():
             flash("All fields are required!", "danger")
             return redirect(url_for('rider_kyc'))
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
+        existing_rider = Rider_kyc.query.filter_by(email=email).first()
+        if existing_rider:
             flash("This email is already registered. Please log in or use a different email.", "danger")
             return redirect(url_for('rider_kyc'))
 
@@ -1271,7 +1384,7 @@ def rider_kyc():
         insurance_path = save_file(insurance)
         photo_path = save_file(photo)
 
-        new_rider = User(
+        new_rider = Rider_kyc(
             name=name,
             email=email,
             phone=phone,
@@ -1290,7 +1403,7 @@ def rider_kyc():
         db.session.commit()
 
         flash(f'KYC submitted successfully for {new_rider.name}!', "success")
-        return redirect(url_for('profile'))
+        return redirect(url_for('rider_profile'))
 
     return render_template('rider_kyc.html')
 
@@ -1303,6 +1416,37 @@ def save_file(file):
         file.save(filepath)
         return unique_filename
     return None
+
+
+@app.route('/rider_login', methods=['GET', 'POST'])
+def rider_login():
+    if request.method == 'POST':
+        email = request.form.get('Email')
+        password = request.form.get('Password')
+
+        rider = Rider_kyc.query.filter_by(email=email).first()
+
+        if rider and rider.check_password(password):
+            if not rider.email_verified:
+                flash('Please verify your email before logging in.', 'warning')
+                return redirect(url_for('send_verification'))
+
+            session['rider_id'] = rider.id
+            session['rider_role'] = 'rider'
+            session['rider_email'] = rider.email
+
+            email_sent = send_welcome_email(rider.email, rider.name, is_registration=False)
+            if not email_sent:
+                flash('Login successful, but notification email could not be sent.', 'warning')
+            else:
+                flash('Login successful as rider! Login notification sent to your email.', 'success')
+
+            return redirect(url_for('rider_profile'))
+        else:
+            flash('Invalid credentials', 'danger')
+            return redirect(url_for('rider_login'))
+
+    return render_template('rider_login.html')
 
 
 # @app.route('/uploads/<filename>')
@@ -1384,23 +1528,6 @@ def verify_rider(rider_id):
     return jsonify({'message': f'Rider {rider.name} verified successfully!'}), 200
 
 
-# @app.route('/get_rider_details/<int:rider_id>', methods=['GET'])
-# def get_rider_details(rider_id):
-#     rider = User.query.get(rider_id)
-#     if not rider:
-#         return jsonify({'error': 'Rider not found'}), 404
-
-#     return jsonify({
-#         "id": rider.id,
-#         "name": rider.name,
-#         "email": rider.email,
-#         "phone": rider.phone,
-#         "id_proof": f"/uploads/{rider.id_proof}" if rider.id_proof else "",
-#         "license": f"/uploads/{rider.license}" if rider.license else "",
-#         "insurance": f"/uploads/{rider.insurance}" if rider.insurance else "",
-#         "photo": f"/uploads/{rider.photo}" if rider.photo else ""
-#     })
-    
     
     
     
@@ -1535,22 +1662,22 @@ def update_order_status(order_id, status):
 
     
 
-import pandas as pd
-from sqlalchemy import inspect
+# import pandas as pd
+# from sqlalchemy import inspect
 
-def export_all_tables_to_excel(excel_filename='database_export.xlsx'):
-    with app.app_context():
-        engine = db.engine
-        inspector = inspect(engine)
+# def export_all_tables_to_excel(excel_filename='database_export.xlsx'):
+#     with app.app_context():
+#         engine = db.engine
+#         inspector = inspect(engine)
         
-        with pd.ExcelWriter(excel_filename, engine='openpyxl') as writer:
-            for table_name in inspector.get_table_names():
-                df = pd.read_sql_table(table_name, con=engine)
-                df.to_excel(writer, sheet_name=table_name, index=False)
+#         with pd.ExcelWriter(excel_filename, engine='openpyxl') as writer:
+#             for table_name in inspector.get_table_names():
+#                 df = pd.read_sql_table(table_name, con=engine)
+#                 df.to_excel(writer, sheet_name=table_name, index=False)
         
-        print(f"All tables exported to {excel_filename}")
+#         print(f"All tables exported to {excel_filename}")
 
-export_all_tables_to_excel()
+# export_all_tables_to_excel()
 
 
 
