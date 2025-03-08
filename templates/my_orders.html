@@ -14,6 +14,10 @@
                     <strong>Order Page:</strong> <a href="{{ url_for('payment_page', order_id= order.id) }}" target="_blank">To order page</a> <br>
                     <strong>Status:</strong> {{ order.status }} <br>
                 </li>
+                <form action="{{ url_for('confirm_payment', order_id=order.id) }}" method="POST">
+                    <button type="submit">Confirm Payment</button>
+                </form>
+                
                 <hr>
             {% endfor %}
         </ul>

@@ -1,43 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Assign Order to Rider</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        form { margin: 20px 0; }
-        select, input[type="submit"] { padding: 10px; margin: 5px 0; }
-    </style>
-</head>
-<body>
-    <h1>Assign Order to Rider</h1>
+{% extends "base.html" %}
+
+{% block title %}Assign Order to Rider{% endblock %}
+
+{% block content %}
+
     <!-- Flash messages (if using Flask's flash) -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
     {% endwith %}
     
-    <form action="{{ url_for('assign_order') }}" method="POST">
-        <label for="order_id">Select Order:</label><br>
-        <select name="order_id" id="order_id" required>
-            <option value="">--Select an Order--</option>
-            {% for order in orders %}
-                <option value="{{ order.id }}">Order #{{ order.id }} (Status: {{ order.status }})</option>
-            {% endfor %}
-        </select><br>
-
-        <label for="rider_id">Select Rider:</label><br>
-        <select name="rider_id" id="rider_id" required>
-            <option value="">--Select a Rider--</option>
-            {% for rider in riders %}
-                <option value="{{ rider.id }}">{{ rider.name }} ({{ rider.email }})</option>
-            {% endfor %}
-        </select><br>
-
-        <input type="submit" value="Assign Order">
-    </form>
-</body>
-</html>
+    <div class= "assign-container">
+        <h1>Assign Order to Rider</h1>
+        <form action="{{ url_for('assign_order') }}" method="POST">
+            <select class="assign-select" name="order_id" id="order_id" required>
+                <option value="">Select an Order</option>
+                {% for order in orders %}
+                    <option value="{{ order.id }}">Order #{{ order.id }} (Status: {{ order.status }})</option>
+                {% endfor %}
+            </select><br>
+    
+            <select class="assign-select" name="rider_id" id="rider_id" required>
+                <option value="">Select a Rider</option>
+                {% for rider in riders %}
+                    <option value="{{ rider.id }}">{{ rider.name }} ({{ rider.email }})</option>
+                {% endfor %}
+            </select><br>
+    
+            <input type="submit" value="Assign Order">
+        </form>
+    </div>
+{% endblock %}
