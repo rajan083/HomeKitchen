@@ -32,41 +32,33 @@
             {% for item in orders %}
                 <div class="card order-card">
                     <div class="order-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Order #{{ item['id'] }}</h5>
-                        <span class="badge {% if item['status'] == 'delivered' %}bg-success{% elif item['status'] == 'Assigned to Rider' %}bg-primary{% else %}bg-warning{% endif %}">
-                            {{ item['status'] }}
+                        <h5 class="card-title mb-0">Order #{{ item.id }}</h5>
+                        <span class="badge {% if item.status == 'delivered' %}bg-success{% elif item.status == 'Assigned to Rider' %}bg-primary{% else %}bg-warning{% endif %}">
+                            {{ item.status }}
                         </span>
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <p><strong>Item:</strong> {{ item['item_name'] }}</p>
-                                <p><strong>Quantity:</strong> {{ item['quantity'] }}</p>
-                                <p><strong>Amount:</strong> ₹{{ item['amount'] }}</p>
+                                <p><strong>Item:</strong> {{ item.item_name }}</p>
+                                <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+                                <p><strong>Amount:</strong> ₹{{ item.amount }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Payment Status:</strong> {{ item['payment_status'] }}</p>
+                                <p><strong>Payment Status:</strong> {{ item.payment_status }}</p>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <!-- Consumer Information -->
+                            <!-- Consumer (User) Information -->
                             <div class="col-md-6">
                                 <h5>Customer Information</h5>
                                 <div class="contact-info">
-                                    {% if item['consumer'] %}
-                                        <p><strong>Name:</strong> {{ item['consumer']['name'] }}</p>
-                                        <p><strong>Email:</strong> {{ item['consumer']['email'] }}</p>
-                                        {% if item['consumer']['phone'] %}
-                                            <p><strong>Phone:</strong> {{ item['consumer']['phone'] }}</p>
-                                        {% else %}
-                                            <p><strong>Phone:</strong> <em>Not provided</em></p>
-                                        {% endif %}
-                                        {% if item['consumer']['location'] %}
-                                            <p><strong>Location:</strong> {{ item['consumer']['location'] }}</p>
-                                        {% else %}
-                                            <p><strong>Location:</strong> <em>Not provided</em></p>
-                                        {% endif %}
+                                    {% if item.consumer %}
+                                        <p><strong>Name:</strong> {{ item.consumer.name }}</p>
+                                        <p><strong>Email:</strong> {{ item.consumer.email }}</p>
+                                        <p><strong>Phone:</strong> {{ item.consumer.phone if item.consumer.phone else '<em>Not provided</em>' | safe }}</p>
+                                        <p><strong>Location:</strong> {{ item.consumer.location if item.consumer.location else '<em>Not provided</em>' | safe }}</p>
                                     {% else %}
                                         <p><em>Consumer information not available</em></p>
                                     {% endif %}
@@ -77,19 +69,11 @@
                             <div class="col-md-6">
                                 <h5>Vendor Information</h5>
                                 <div class="contact-info">
-                                    {% if item['vendor'] %}
-                                        <p><strong>Name:</strong> {{ item['vendor']['name'] }}</p>
-                                        <p><strong>Email:</strong> {{ item['vendor']['email'] }}</p>
-                                        {% if item['vendor']['phone'] %}
-                                            <p><strong>Phone:</strong> {{ item['vendor']['phone'] }}</p>
-                                        {% else %}
-                                            <p><strong>Phone:</strong> <em>Not provided</em></p>
-                                        {% endif %}
-                                        {% if item['vendor']['location'] %}
-                                            <p><strong>Location:</strong> {{ item['vendor']['location'] }}</p>
-                                        {% else %}
-                                            <p><strong>Location:</strong> <em>Not provided</em></p>
-                                        {% endif %}
+                                    {% if item.vendor %}
+                                        <p><strong>Name:</strong> {{ item.vendor.name }}</p>
+                                        <p><strong>Email:</strong> {{ item.vendor.email }}</p>
+                                        <p><strong>Phone:</strong> {{ item.vendor.phone if item.vendor.phone else '<em>Not provided</em>' | safe }}</p>
+                                        <p><strong>Location:</strong> {{ item.vendor.location if item.vendor.location else '<em>Not provided</em>' | safe }}</p>
                                     {% else %}
                                         <p><em>Vendor information not available</em></p>
                                     {% endif %}
@@ -99,8 +83,13 @@
                         
                         <!-- Action Buttons -->
                         <div class="mt-3">
-                            <a href="{{ url_for('update_order_status', order_id=item['id'], status='in-transit') }}" class="btn btn-primary">Mark as In Transit</a>
-                            <a href="{{ url_for('update_order_status', order_id=item['id'], status='delivered') }}" class="btn btn-success">Mark as Delivered</a>
+                            <form action="{{ url_for('update_order_status', order_id=item.id, status='in-transit') }}" method="POST">
+                                <button type="submit" class="btn btn-primary">Mark as In Transit</button>
+                            </form>
+                            <br>
+                            <form action="{{ url_for('update_order_status', order_id=item.id, status='delivered') }}" method="POST">
+                                <button type="submit" class="btn btn-success">Mark as Delivered</button>
+                            </form>                            
                         </div>
                     </div>
                 </div>

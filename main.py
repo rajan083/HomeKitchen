@@ -123,7 +123,7 @@ class Order(db.Model):
     vendor_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable= True)
     rider_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable= True)
     status = db.Column(db.String(20))
-    delivered_at = db.Column(db.DateTime)
+    delivered_at = db.Column(db.DateTime, nullable= True)
     rider_fee = db.Column(db.Float, default=0.0)
     delivery_fee = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -1248,6 +1248,8 @@ Your HomeKitchen Team
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
 
+
+
     total_deliveries = 0
     monthly_earnings = 0
     weekly_earnings = 0
@@ -1261,6 +1263,7 @@ Your HomeKitchen Team
         monthly_earnings = db.session.query(func.sum(Order.rider_fee)).filter(
             Order.rider_id == rider.id,
             Order.status == 'delivered',
+            Order.delivered_at.isnot(None),  # Ensure delivered_at is not NULL
             Order.delivered_at >= first_day_of_month,
             Order.delivered_at < now
         ).scalar() or 0
@@ -1268,6 +1271,7 @@ Your HomeKitchen Team
         weekly_earnings = db.session.query(func.sum(Order.rider_fee)).filter(
             Order.rider_id == rider.id,
             Order.status == 'delivered',
+            Order.delivered_at.isnot(None),  # Ensure delivered_at is not NULL
             Order.delivered_at >= start_of_week,
             Order.delivered_at < now
         ).scalar() or 0
@@ -1539,7 +1543,7 @@ def assign_order():
         rider_id = request.form.get('rider_id')
         
         order = db.session.get(Order, order_id)
-        rider = User.query.get(rider_id)
+        rider= db.session.get(Rider_kyc, rider_id)
         
         if not order:
             flash("Order not found!", "danger")
@@ -1557,7 +1561,7 @@ def assign_order():
 
     else:
         orders = Order.query.filter(Order.rider_id == None).all()
-        riders = User.query.filter_by(role='rider').all()
+        riders = Rider_kyc.query.filter_by(role='rider').all()
         return render_template('assign_order.html', orders=orders, riders=riders)
 
 
@@ -1626,33 +1630,40 @@ def rider_orders(rider_id):
 
 
 
-@app.route('/update_order_status/<string:order_id>/<string:status>', methods=['GET'])
+@app.route('/update_order_status/<string:order_id>/<string:status>', methods=['POST'])
 def update_order_status(order_id, status):
-    if "user_role" not in session or session.get("user_role") != "rider":
-        flash("Only riders can update order status.", "danger")
-        return redirect(url_for("dashboard"))
-    
+    # Ensure only riders can update order status
+    if "rider_id" not in session:
+        flash("Only assigned riders can update order status.", "danger")
+        return redirect(url_for("rider_profile"))
+
+    # Fetch the order from the database
     order = db.session.get(Order, order_id)
     if not order:
         flash("Order not found.", "danger")
-        return redirect(url_for("dashboard"))
-    
-    if order.rider_id != session.get("user_id"):
+        return redirect(url_for("rider_profile"))
+
+    # Ensure the logged-in rider is assigned to this order
+    if order.rider_id != session["rider_id"]:
         flash("You are not assigned to this order.", "danger")
-        return redirect(url_for("dashboard"))
-    
-    if status == "in-transit":
+        return redirect(url_for("rider_profile"))
+
+    # Update order status
+    if status.lower() == "in-transit":
         order.status = "in-transit"
         flash("Order marked as In Transit.", "success")
-    elif status == "delivered":
+
+    elif status.lower() == "delivered":
         order.status = "delivered"
+        order.delivered_at = datetime.datetime.utcnow()  # Set the delivered time
         flash("Order marked as Delivered.", "success")
+
     else:
-        flash("Invalid status.", "danger")
-        return redirect(url_for("rider_orders", rider_id=session.get("user_id")))
-    
+        flash("Invalid status update.", "danger")
+
     db.session.commit()
-    return redirect(url_for("rider_orders", rider_id=session.get("user_id")))
+    return redirect(url_for("rider_orders", rider_id=session["rider_id"]))
+
 
 
 
