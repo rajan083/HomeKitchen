@@ -1456,12 +1456,6 @@ def rider_login():
     return render_template('rider_login.html')
 
 
-# @app.route('/uploads/<filename>')
-# def uploaded_file(filename):
-#     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-
 
 @app.route('/get_unverified_riders', methods=['GET'])
 def get_unverified_riders():
@@ -1667,31 +1661,6 @@ def update_order_status(order_id, status):
     db.session.commit()
     return redirect(url_for("rider_orders", rider_id=session["rider_id"]))
 
-
-
-
-
-
-#=================================================DATABASE TO EXCEL================================================
-
-    
-
-# import pandas as pd
-# from sqlalchemy import inspect
-
-# def export_all_tables_to_excel(excel_filename='database_export.xlsx'):
-#     with app.app_context():
-#         engine = db.engine
-#         inspector = inspect(engine)
-        
-#         with pd.ExcelWriter(excel_filename, engine='openpyxl') as writer:
-#             for table_name in inspector.get_table_names():
-#                 df = pd.read_sql_table(table_name, con=engine)
-#                 df.to_excel(writer, sheet_name=table_name, index=False)
-        
-#         print(f"All tables exported to {excel_filename}")
-
-# export_all_tables_to_excel()
 
 
 
