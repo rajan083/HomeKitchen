@@ -63,12 +63,11 @@
     }
 </script>
 
-
 <h2>Submitted Items</h2>
 <div class="item-container">
     {% for item in items %}
-        <div class="item-card">
-            <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
+        <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
             <div>
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.context }}</p>

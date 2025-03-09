@@ -80,7 +80,231 @@ body{
     height: 20px;
     object-fit: contain;
 
+}.homecard-container{
+    display: flex;
+    margin: 10px;
+    padding: 50px;
+    justify-content: center;
+    gap: 20px;
 }
+.homecard {
+    width: 300px;
+    height: 180px;
+    background-color: #D9D9D9;
+    padding: 70px 100px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    background-size: cover;
+    background-position: center;
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.homecard:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+    
+}
+.homecard::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.3);  /* Dark overlay */
+    border-radius: 10px;
+}
+
+.homecard-container button{
+    color: #ddd;
+    font-size: 16px;
+    font-weight: bold;
+    width: 90%;
+    height: 35px;
+    border: 2px solid #958585;
+    border-radius: 8px;
+    background-color: transparent;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+    bottom: -150px;
+}
+.homecard-container button:hover, 
+.homecard-container button:active{
+    background-color: rgba(0, 0, 0, 0.8); 
+    color: #ddd;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.registercard-container{
+    display: flex;
+    margin: 10px;
+    padding: 50px;
+    justify-content: center;
+    gap: 20px;
+}
+.registercard {
+    width: 300px;
+    background-color: #D9D9D9;
+    padding: 70px 100px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.registercard:hover {
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.registercard input{
+    color: #ddd;
+    font-weight: bold;
+    padding: 8px 15px;
+    background-color: rgba(0, 0, 0, 0.4); 
+    margin: 10px;
+    width: 80%;
+    border-radius: 6px;
+    border: 2px solid #D9D9D9;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.registercard input:hover, input:active{
+    border: 2px solid #ddd;
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.registercard textarea{
+    background-color: rgba(0, 0, 0, 0.4); 
+    padding: 8px 15px;
+    color: #ddd;
+    margin: 10px;
+    width: 80%;
+    font-weight: bold;
+    border-radius: 6px;
+    border: 2px solid #D9D9D9;
+        transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.registercard textarea:hover, textarea:active{
+    border: 2px solid #000000;
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+.registercard-button{
+    font-weight: bold;
+    margin: 10px;
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.4); 
+    margin-left: 10px;
+    padding: 8px 15px;
+    width: 90%;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    text-align: center;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.registercard-button:hover, .registercard-button:active{
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.8); 
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.registercard select{
+    color: #ddd;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.4); 
+    margin-left: 10px;
+    padding: 8px 10px;
+    font-size: 14px;
+    width: 90%;
+    height: 35px;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+    text-align: center;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.registercard select:hover{
+    color: #ddd;
+    border: 2px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+.registercard input::placeholder{
+    font-weight: bold;
+    color: #ddd;
+}
+.registercard p{
+    position: relative;
+    bottom: -30px;
+    font-weight: bold;
+    color: #000000;
+    font-size: 16px;
+}
+.registercard a{
+    position: relative;
+    bottom: -46px;
+    font-weight: bold;
+    color: #000000;
+    font-size: 16px;
+}
+.registercard a:hover, a:active{
+    color: #ddd;
+}
+
+
 
 .card-container{
     display: flex;
@@ -250,9 +474,10 @@ header {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 header > div {
-    margin-top: 5px;
     display: flex;
+    align-items: center;
     max-width: 100%;
+    height: 100px;
     padding: 0 20px;
 }
 header img {
@@ -347,23 +572,37 @@ nav ul li a {
 
 .top-right-buttons {
     position: absolute;
-    top: 10px;
+    top: 30px;
     right: 20px;
     display: flex;
     gap: 10px;
 }
 
 .top-right-buttons button {
-    color: #958585;
+    color: #ddd;
     padding: 10px 15px;
-    border: none;
+    background-color: rgba(0, 0, 0, 0.2); 
+    border: 2px solid #ddd;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
-.top-right-buttons button:hover {
-    background: #d9d9d9;
+.top-right-buttons button:hover,
+.top-right-buttons button:active {
+    color: #000000;
+    font-weight: bolder;
+    border: 2px solid #000000;
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
 }
 
 .item-container {
@@ -393,12 +632,63 @@ nav ul li a {
         z-index 0.3s ease;
     position: relative;
     z-index: 1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+}
+
+.item-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.item-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.item-card h3, .item-card p{
+    color: #ddd;
+    font-weight: bold;
+}
+.item-card button{
+    width: 60%;
+    font-weight: bold;
+    height: 35px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.4); 
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.item-card button:hover, button:active{
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
 }
 
 .item-card:hover {
     transform: scale(1.05);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4); /* Enhance shadow for depth */
-    z-index: 10; /* Ensure it appears above other elements */
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.8);
+    z-index: 10;
 }
 
 .item-card img {
@@ -406,6 +696,7 @@ nav ul li a {
     height: 200px;
     object-fit: cover;
     border-radius: 5px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 }
 
@@ -802,7 +1093,7 @@ footer {
     height: 150px;
     border: none;
     border-radius: 5px;
-    background-color: #959595;
+    background-color: rgba(0, 0, 0, 0.4); 
     color: white;
     font-weight: bold;
     cursor: pointer;
@@ -812,15 +1103,16 @@ footer {
         box-shadow 0.3s ease, 
         z-index 0.3s ease, 
         width 0.3s ease;
+        background-color: 0.3s ease;
     position: relative;
     z-index: 1;
 }
 
 .vendor-page-buttons button:hover {
-    color: #958585;
-    background-color: #D9D9D9;
-    transform: scale(1.1); /* Increases size slightly */
-    z-index: 10; /* Lifts above other buttons */
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.1);
+    z-index: 10;
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
 }
 
@@ -860,7 +1152,12 @@ footer {
     height: 50px;
     padding: 5px 12px;
     margin: 10px;
-    transition: 0.1s;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 .new-item-button:hover{
     width: 150px;
@@ -868,7 +1165,10 @@ footer {
     padding: 5px 12px;
     margin: 10px;
     color: #ddd;
-    background-color: #000000;
+    background-color: #000000;    
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
 }
 .newitemform{
     width: 100%;
@@ -925,16 +1225,11 @@ footer {
     flex-direction: column;
     gap: 100px;
 }
-.unchangeable{
+.unchangeable, .changeable{
     display: flex;
     flex-wrap: wrap;
     gap: 100px;
 
-}
-.changeable{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 100px;
 }
 .sub-change{
     display: flex;
@@ -947,6 +1242,38 @@ footer {
     justify-content: flex-end;
     margin-top: 85px;
 }
+.address input, .changeable input,
+.unchangeable input, .sub-change input{
+    font-weight: bold;
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.map{
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.map:hover{
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;   
+}
+
+.unchangeable input:hover, .unchangeable input:active,
+.changeable input:hover, .changeable input:active,
+.sub-change input:hover, .sub-change input:active,
+.address input:hover, .address input:active{
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
 .data input{
     width: 100%;
     height: auto;
@@ -954,22 +1281,28 @@ footer {
     border-radius: 5px;
     padding: 6px 15px;
 }
-.profile-submit{
-    width: 45%;
-    margin-top: -150px;
-    margin-left: 200px;
+.profile button{
+    font-weight: bold;
+    width: 20%;
+    height: 35px;
+    border: 0.2px solid #958585;
+    border-radius: 8px;
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
-.profile-submit:hover, .profile-submit:active{
-    width: 45%;
-    margin-top: -150px;
-    margin-left: 200px;
-    background-color: #000000;
-    color: #D9D9D9;
+.profile button:hover, .profile button:active{
+    background-color: #d9d9d9;
+    border: 0.2px solid #000000;
+    color: #000000;
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
 }
-.profile-page{
-    display: flex;
-    flex-direction: column;
-}
+
 .assigned_order{
     display: flex;
     width: 100%;
@@ -1161,5 +1494,12 @@ footer {
     transform: scale(1.05) translateY(-5px);
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
     z-index: 10;
+}
+::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    scrollbar-width: none;
 }
 

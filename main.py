@@ -897,26 +897,29 @@ def payment_page(order_id):
 
 
 #=================================================GENERATE QR================================================
-
-
-            #====CLEAN-UP PRE-EXISTING QR CODES=====
             
             
-def cleanup_qr_code(qr_path):
-    try:
-        if os.path.exists(qr_path):
-            os.remove(qr_path)
-    except Exception as e:
-        print(f"Error cleaning up QR code: {str(e)}")
+
 
 
 @app.route('/qr/<order_id>')
 def generate_qr(order_id):
     order = Order.query.get_or_404(order_id)
     qr = qrcode.make(order.upi_link)
-    qr_path = f'static/qr_{order_id}.png'
+    qr_path = f'static/QrCode/qr_{order_id}.png'
     qr.save(qr_path)
     return send_file(qr_path, mimetype='image/png', as_attachment=False)
+
+
+            #====CLEAN-UP PRE-EXISTING QR CODES=====
+
+
+def cleanup_qr_code(qr_path):
+    try:
+        if os.path.exists(qr_path):
+            os.remove(qr_path)
+    except Exception as e:
+        print(f"Error cleaning up QR code: {str(e)}")
     
     
     
@@ -1174,7 +1177,7 @@ Your HomeKitchen Team
             db.session.rollback()
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
-    return render_template('profile.html')
+    return render_template('profile.html', user=user)
     
 
 

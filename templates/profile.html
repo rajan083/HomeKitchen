@@ -18,7 +18,7 @@
     </form>
 </div>
 
-<div class= 'profile-page'>
+<div class= 'profile-page' style="font-weight: bold;">
     <div class="profile-container">
         <div class="profile">
             <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
@@ -61,11 +61,11 @@
                         <label for="longitude">Longitude:</label>
                         <input type="text" id="longitude" name="longitude" value="{{ user.longitude }}" required>
                 
-                        <button type="button" onclick="getLocation()">Get Location</button>
-                        <div id="map" style="height: 400px; width: 400px; border-radius: 12px; margin-top: 10px;"></div>
+                        <button style="margin-left: -1px; width: 150px;" type="button" onclick="getLocation()">Get Location</button>
+                        <div class="map" id="map" style="height: 400px; width: 400px; border-radius: 12px; margin-top: 10px;"></div>
                     </div>
                 </div>
-                <button type="submit" class='profile-submit'>Update Profile</button>
+                <button style="margin-left: 300px; position: relative; top: -300px; z-index: 999;" type="submit">Update Profile</button>
             </form>
         </div>
 
@@ -162,7 +162,7 @@
                 }
             }
         </script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-ZoIbb0vLDv2SGuzdHQeZ4V1kIJeDk7U&callback=initMap"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVlA9xGGRglT8JmRk4_J7QmAAJjgjBq1A&callback=initMap"></script>
     </div>
 </div>
 {% endblock %}

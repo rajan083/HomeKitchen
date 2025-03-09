@@ -3,8 +3,15 @@
 {% block title %}HomeKitchen{% endblock title %}
 
 {% block content %}
-<div class='card-container'>
-    <div class='card'>
+<style>
+    .registercard{
+        background-size: cover;
+        background-position: center;
+        background-image: url("{{ url_for('static', filename='images/register-bg.jpg') }}");
+    }
+</style>
+<div class='registercard-container'>
+    <div class='registercard'>
         <form action="{{ url_for('register') }}" method='POST'>
             <div class='name-phone'>
                 <input type='text' placeholder='Name' name='Name' required>
@@ -24,11 +31,11 @@
                 <input type='text' placeholder='UPI ID (yourname@bank)' name='UPI' id="UPI"><br>
             </div>
 
-            <button type='submit'>Register</button>
+            <button class="registercard-button" type='submit'>Register</button>
         </form>
 
-        <div>
-            <p>Already registered? <a href="{{ url_for('login') }}">Click here to Login</a></p>
+        <div style="display: inline-flex;">
+            <p>Already registered?</p><a href="{{ url_for('login') }}">Click here to Login</a>
         </div>
     </div>
 </div>

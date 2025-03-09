@@ -3,18 +3,32 @@
 {% block title %}HomeKitchen{% endblock title %}
 
 {% block content %}
-    <div class='card-container'>
-        <div class='card'>
+<style>
+    .homecard:nth-child(1) {
+        background-image: url("{{ url_for('static', filename='images/vendor-bg.jpg') }}");
+    }
+
+    .homecard:nth-child(2) {
+        background-image: url("{{ url_for('static', filename='images/consumer-bg.jpg') }}");
+    }
+
+    .homecard:nth-child(3) {
+        background-image: url("{{ url_for('static', filename='images/delivery-bg.jpg') }}");
+    }
+</style>
+
+    <div class='homecard-container'>
+        <div class='homecard'>
             <form action="{{ url_for('register') }}" method="get">
                 <button type="submit" class="btn">Vendor</button>
             </form>
         </div>
-        <div class='card'>  
+        <div class='homecard'>  
             <form action="{{ url_for('register') }}" method="get">
                 <button type="submit" class="btn">Consumer</button>
             </form>
         </div>
-        <div class='card'>  
+        <div class='homecard'>  
             <form action="{{ url_for('rider_kyc') }}" method="get">
                 <button type="submit" class="btn">Delivery Partner</button>
             </form>
