@@ -1,14 +1,64 @@
 {% extends "base.html" %}
 {% block content %}
-<div>
-    <h1>Terms & Conditions</h1>
-    <div>
-        <form action="{{ url_for('terms') }}" method="POST">
+<div class="terms-container">
+    <h1>Terms & Conditions for Vendors</h1>
+    
+    <div class="terms-content">
+        <p>
+            By signing up as a vendor on our platform, you agree to adhere to the following terms and conditions:
+        </p>
+
+        <h3>1. Product Quality and Safety</h3>
+        <p>
+            - Vendors must ensure that all food items are fresh, properly stored, and meet local health and safety standards.  
+            - Items that are expired, contaminated, or improperly stored will result in immediate suspension.
+        </p>
+
+        <h3>2. Accurate Information</h3>
+        <p>
+            - Vendors must provide accurate descriptions, prices, and images of their food items.  
+            - Misleading information may lead to account suspension or removal from the platform.
+        </p>
+
+        <h3>3. Delivery and Timeliness</h3>
+        <p>
+            - Vendors are responsible for ensuring timely preparation and delivery of orders.  
+            - Frequent delays without valid reasons may impact your profile's visibility.
+        </p>
+
+        <h3>4. Payment & Platform Fee</h3>
+        <p>
+            - Vendors are required to pay a monthly platform fee of ₹500 to continue using the platform.  
+            - The first month is free as part of the onboarding offer.  
+            - Failure to pay the platform fee within 5 days of the due date will result in the suspension of your account until payment is completed.  
+            - Payments can be made via UPI, credit/debit cards, or net banking.
+        </p>
+
+        <h3>5. Account Suspension & Reactivation</h3>
+        <p>
+            - If the platform fee is not paid by the due date, your account will be temporarily deactivated.  
+            - During deactivation, your items will be hidden from customers, and you will be unable to manage orders.  
+            - Once the payment is made, your account will be reactivated within 24 hours.
+        </p>
+
+        <h3>6. Code of Conduct</h3>
+        <p>
+            - Vendors must maintain professional behavior with customers and delivery personnel.  
+            - Misconduct or harassment may result in permanent account termination.
+        </p>
+
+        <h3>7. Refund & Cancellation Policy</h3>
+        <p>
+            - Vendors must adhere to the platform's refund and cancellation guidelines to maintain customer trust.  
+            - Consistent violations may result in reduced visibility or suspension.
+        </p>
+
+        <form action="{{ url_for('terms') }}" method="POST" class="term-form">
             <label>
-                <input type="checkbox" name="Accept" required>
+                <input type="checkbox" name="Accept" required class="term-input">
                 <p>I hereby accept all the given Terms & Policies and fully agree to them.</p>
             </label><br>
-            <button type="submit">Agree & Continue</button>
+            <button class="term-form-button" type="submit">Agree & Continue</button>
         </form>
     </div>
 </div>

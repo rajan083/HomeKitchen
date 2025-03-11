@@ -106,7 +106,7 @@ body{
 
 .homecard:hover {
     transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.8);
     z-index: 10;
     
 }
@@ -114,11 +114,11 @@ body{
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.3);  /* Dark overlay */
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 10px;
 }
 
-.homecard-container button{
+.homecard-btn{
     color: #ddd;
     font-size: 16px;
     font-weight: bold;
@@ -136,8 +136,8 @@ body{
     z-index: 1;
     bottom: -150px;
 }
-.homecard-container button:hover, 
-.homecard-container button:active{
+.homecard-btn:hover, 
+.homecard-btn:active{
     background-color: rgba(0, 0, 0, 0.8); 
     color: #ddd;
     font-size: 16px;
@@ -427,7 +427,7 @@ body{
     z-index: 10;
 }
 
-
+/* 
 h1, h2, h3, p,a{
     margin-left: 15px;
     color: #958585;
@@ -438,7 +438,7 @@ a:hover, a:active{
     text-decoration: none;
 }
 
-button{
+/* button{
     margin: 10px;
     color: #958585;
     margin-left: 10px;
@@ -460,7 +460,7 @@ button:hover, button:active{
     border-radius: 15px;
     border: 1px solid #000000;
     text-align: center;
-}
+} */ */
 
 .card h4, small{
     margin-left: 15px;
@@ -494,11 +494,30 @@ nav ul {
 }
 nav ul li a {
     padding-top: 50px;
+    font-weight: bold;
     text-decoration: none;
-    color: #958585;
+    color: #000000;
     font-size: 18px;
     padding: 5px 10px;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
+nav ul li a:hover,
+nav ul li a:active {
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.4);
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
 .flash-message {
     padding: 12px 40px 12px 12px; /* Extra space for close button */
     margin: 10px 0;
@@ -1781,5 +1800,88 @@ footer {
 
 * {
     scrollbar-width: none;
+}
+.terms-container {
+    max-width: 900px;
+    margin: 50px auto;
+    background-color: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.terms-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+.terms-content {
+    color: #555;
+    line-height: 1.8;
+}
+
+.terms-content h3 {
+    margin-top: 20px;
+    color: #000000;
+    border-left: 4px solid #000000;
+    padding-left: 10px;
+    font-size: 1.2rem;
+}
+
+.terms-content p {
+    margin-bottom: 10px;
+    padding-left: 15px;
+}
+
+.terms-content ul {
+    padding-left: 40px;
+    list-style: square;
+}
+
+.term-form {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.term-form label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.term-input[type="checkbox"] {
+    accent-color: #000000;
+    width: 18px;
+    height: 18px;
+}
+
+.term-form-button[type="submit"] {
+    background-color: rgba(0, 0, 0, 0.2); 
+    color: #000000;
+    width: 40%;
+    border: 2px solid #000000;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 
+    transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.term-form-button[type="submit"]:hover {
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    background-color: rgba(0, 0, 0, 1);
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
 }
 
