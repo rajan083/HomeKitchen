@@ -3,36 +3,43 @@
 {% block title %}{{ item.name }} Details{% endblock title %}
 
 {% block content %}
-<div class="itemdetail-container">
-    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
-    <div class="details">
-        <h2>{{ item.name }}</h2>
-        <p><strong>Price:</strong> ₹{{ item.amount }}</p>
-        <p><strong>Seller:</strong> {{ item.seller.name }}</p>
-        <p><strong>Stock:</strong> {{ item.stock }}</p>
-        <p><strong>{{ item.type }}</strong></p>
-        <p><strong>{{ item.region }}</strong></p>
+<div class="item-container" style="padding: 30px;">
+    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image" style="width: 500px; height:500px; border-radius: 15px;">
+    <div class="item-details">
+        <h1 style="font-size: 56px;">{{ item.name }}</h1>    
+        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>₹</p><h1 style="font-size: 42px; margin-top:-10px;">{{ item.amount }}</h1></div><br>
+        <div style="display: inline-flex; margin-right: 20px;"><img src="{{url_for('static', filename='images/chef-hat.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.seller.name }}</p></div>
+        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/grocery.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.stock }}</p></div><br>
+        <div style="display: inline-flex; margin-right: 20px;"><img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;"><p style="margin-top:-0.1px;">{{ item.type }}</p></div>
+        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/location.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="margin-top:-0.1px;">{{ item.region }}</p></div><br>
+        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/ingredient.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="font-weight: bold;">{{item.context}}</p></div> 
         
         {% if session.get('user_role') == 'consumer' %}
         <form action="{{ url_for('place_order', item_id=item.id) }}" method="POST">
             <label for="quantity"><strong>Quantity:</strong></label>
-            <input type="number" name="quantity" id="quantity" min="1" max="{{ item.stock }}" required>
+            <input class="quantity-input" type="number" name="quantity" id="quantity" min="1" max="{{ item.stock }}" required>
             <input type="hidden" name="item_name" value="{{ item.name }}">
             <input type="hidden" name="amount" value="{{ item.amount }}">
             <input type="hidden" name="seller_email" value="{{ item.seller.email }}">
             <button class="order-btn" type="submit">Order Now</button>
         </form>
         
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <form action="{{ url_for('like_item', item_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
+                <h2 style="margin: 0;">{{ item.likes }}</h2>
+                <button class="reaction-btn" type="submit">
+                    <img src="{{ url_for('static', filename='images/like.png') }}" style="width: 30px; height: 30px; margin-left: -12px;">
+                </button>
+            </form>
         
-    
-            <!-- Like and Dislike Buttons -->
-            <form action="{{ url_for('like_item', item_id=item.id) }}" method="POST" >
-                <button class="btn" type="submit">👍 Like ({{ item.likes }})</button>
+            <form action="{{ url_for('dislike_item', item_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
+                <h2 style="margin: 0;">{{ item.dislikes }}</h2>
+                <button class="reaction-btn" type="submit">
+                    <img src="{{ url_for('static', filename='images/dislike.png') }}" style="width: 30px; height: 30px; margin-left: -12px;">
+                </button>
             </form>
-            
-            <form action="{{ url_for('dislike_item', item_id=item.id) }}" method="POST">
-                <button class="btn" type="submit">👎 Dislike ({{ item.dislikes }})</button>
-            </form>
+        </div>
+        
         {% endif %}
     
         <!-- Comments Section -->
@@ -41,8 +48,10 @@
             {% if comments %}
                 {% for comment in comments %}
                     <div class="comment">
-                        <strong style="color: #958585;">{{ comment.user.name if comment.user else 'Unknown User' }}:</strong> 
-                        <p>{{ comment.text }}</p>
+                        <div  style="display: inline-flex;">
+                            <p style="color: #000000; font-size: 16px; margin-right: 8px;">{{ comment.user.name if comment.user else 'Unknown User' }}:</p> 
+                            <p style="font-weight: bold; font-size: 16px;">{{ comment.text }}</p>
+                        </div>
                         <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
                     </div>
                 {% endfor %}
@@ -52,9 +61,9 @@
         </div>
     
         <!-- Add Comment Form -->
-        <form method="POST" action="{{ url_for('comment_item', item_id=item.id) }}" style="display: flex; flex-wrap: wrap;">
-            <textarea name="comment" required placeholder=" Comment here"></textarea>
-            <button class='btn' type="submit">Post</button>
+        <form method="POST" action="{{ url_for('comment_item', item_id=item.id) }}" style="display: flex; flex-wrap: wrap; margin-top: 20px;">
+            <textarea name="comment" required placeholder=" Comment here" class="comment-box-textarea"></textarea>
+            <button class='comment-btn' type="submit"><img src="{{url_for('static', filename='images/comment.png')}}"></button>
         </form>
     </div>
 

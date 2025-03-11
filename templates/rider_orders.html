@@ -55,13 +55,23 @@
                                 <h5>Customer Information</h5>
                                 <div class="contact-info">
                                     {% if item.consumer %}
-                                        <p><strong>Name:</strong> {{ item.consumer.name }}</p>
-                                        <p><strong>Email:</strong> {{ item.consumer.email }}</p>
-                                        <p><strong>Phone:</strong> {{ item.consumer.phone if item.consumer.phone else '<em>Not provided</em>' | safe }}</p>
-                                        <p><strong>Location:</strong> {{ item.consumer.location if item.consumer.location else '<em>Not provided</em>' | safe }}</p>
+                                    <p><strong>Name:</strong> {{ item.consumer.name }}</p>
+                                    <p><strong>Email:</strong> {{ item.consumer.email }}</p>
+                                    <p><strong>Phone:</strong> {{ item.consumer.phone if item.consumer.phone else '<em>Not provided</em>' | safe }}</p>
+                                    
+                                    {% if item.consumer.latitude and item.consumer.longitude %}
+                                        <p><strong>Location:</strong>
+                                            <p><strong>Location:</strong> {{ item.vendor.location if item.vendor.location else '<em>Not provided</em>' | safe }}</p>
+                                            <a href="https://www.google.com/maps?q={{ item.consumer.latitude }},{{ item.consumer.longitude }}" target="_blank">
+                                                View on Map
+                                            </a>
+                                        </p>
                                     {% else %}
-                                        <p><em>Consumer information not available</em></p>
+                                        <p><strong>Location:</strong> <em>Not provided</em></p>
                                     {% endif %}
+                                    {% else %}
+                                        <p><strong>Consumer:</strong> <em>Not available</em></p>
+                                    {% endif %}                                
                                 </div>
                             </div>
                             

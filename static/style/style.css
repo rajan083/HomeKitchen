@@ -168,7 +168,6 @@ body{
     position: relative;
     z-index: 1;
 }
-
 .registercard:hover {
     background-color: rgba(0, 0, 0, 0.8); 
     transform: scale(1.05) translateY(-5px);
@@ -581,7 +580,7 @@ nav ul li a {
 .top-right-buttons button {
     color: #ddd;
     padding: 10px 15px;
-    background-color: rgba(0, 0, 0, 0.2); 
+    background-color: rgba(0, 0, 0, 0.4); 
     border: 2px solid #ddd;
     border-radius: 5px;
     cursor: pointer;
@@ -618,14 +617,15 @@ nav ul li a {
 .item-card {
     margin: 10px;
     background-color: #ddd;
-    padding: 15px;
+    padding: 25px;
     border-radius: 8px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 20px;
     width: 30%;
-    min-width: 250px;
+    height: 250px;
+    max-width: 420px;
     transition: 
         transform 0.3s ease, 
         box-shadow 0.3s ease, 
@@ -658,10 +658,6 @@ nav ul li a {
     z-index: 1;
 }
 
-.item-card h3, .item-card p{
-    color: #ddd;
-    font-weight: bold;
-}
 .item-card button{
     width: 60%;
     font-weight: bold;
@@ -692,8 +688,8 @@ nav ul li a {
 }
 
 .item-card img {
-    width: 200px;
-    height: 200px;
+    width: 170px;
+    height: 170;
     object-fit: cover;
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -707,15 +703,15 @@ nav ul li a {
 
 .item-details {
     flex-grow: 1;
+    color: #ddd;
 }
-.item-details h2 {
+.item-details h1, h2, strong {
     margin: 0;
-    font-size: 18px;
+    color: #000000;
 }
-
 .item-details p {
     margin: 5px 0;
-    color: #555;
+    color: #000000;
 }
 .update-form {
     display: none;
@@ -742,73 +738,142 @@ nav ul li a {
     border: 1px solid #958585;
     border-radius: 12px;
 }
-
+.quantity-input{
+    text-align: center;
+    color: #000000;
+    width: 5%;
+    font-weight: bold;
+    height: 25px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.order-input:hover,
+.order-input:active{
+    border: 2px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
 
 .order-btn {
-    background: #958585;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    width: 15%;
+    height: 35px;
+    color: #ddd;
     font-weight: bold;
-}
-
-.order-btn:hover {
-    background: #d9d9d9;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.itemdetail-container{
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 50px;
-}
-.itemdetail-container img{
-    margin: 30px;
-    width: 400px;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 7px;
-}
-.itemdetail-container button{
-    width: 100px;
-    margin: 10px;
-    padding: 5px;
-}
-.itemdetail-container button:hover{
-    background-color: #D9D9D9;
-}
-.itemdetail-container textarea{
-    width: 300px;
-    margin: 10px;
-    padding: 5px;
+    height: 35px;
+    border: 2px solid #ddd;
     border-radius: 8px;
-    border: 1px #958585 solid;
+    background-color: rgba(0, 0, 0, 0.4); 
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
+
+.order-btn:hover,
+.order-btn :active {
+    width: 15%;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
 
 .comments-section{
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-.btn{
+.reaction-btn{
     margin: 10px;
-    padding: 8px 15px;
-    font-size: 14px;
-    width: 90%;
-    border-radius: 8px;
+    width: 5%;
     border: none;
-    text-align: center;
+    background: none;
 }
-.btn:hover{
-    background-color: #D9D9D9;
+.reaction-btn img{
+    margin: 5px;
+    width: 20;
+    height: 20px;
+    transition: 
+    transform 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+
+}
+.reaction-btn img:hover,
+.reaction-btn img:active{
+    width: 30px;
+    height: 30px;
+    transform: scale(1.05) translateY(-5px);
+    z-index: 10;
+}
+.reaction-btn:hover{
+    background:none;
+    border: none;
+}
+
+.comment-box-textarea{
+    padding: 8px;
+    width: 20%;
+    color: #000000;
+    font-weight: bold;
+    height: 35px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.comment-box-textarea:hover,
+.comment-box-textarea:active{
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+.comment-btn{
+    margin: 0;
+    padding: 0;
+    width: 5%;
+    background: none;
+    border: none;
+}
+.comment-btn:hover,
+.comment-btn:active{
+    margin: 0;
+    padding: 0;
+    width: 5%;
+    background: none;
+    border: none;
+}
+.comment-btn img{
+    width: 40px;
+    height: 40px;
+    transition: 
+        transform 0.2s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.comment-btn img:hover,
+.comment-btn img:active{
+    transform: scale(1.05) translateY(-5px);
+    z-index: 10;
 }
 
 .user-carousel-container {
@@ -833,7 +898,7 @@ nav ul li a {
     background: none;
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
     transition: 
         transform 0.3s ease, 
         box-shadow 0.3s ease, 
@@ -845,7 +910,7 @@ nav ul li a {
 .user-card:active{
     margin: 15px;
     transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.8);
     z-index: 10;
 }
 .user-card img {
@@ -868,6 +933,106 @@ nav ul li a {
     object-fit: cover;
     border-radius: 7px;
 }
+
+.paymentpage-container{
+    display: flex;
+    justify-content: center;
+}
+
+.myorder-container{
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.payment-card{
+    margin: 50px;
+    padding: 20px 70px;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    border: 2px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.2); 
+    border-radius: 12px;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.payment-card:hover,
+.payment-card:active{
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+.payment-card h1{
+    font-size: 34px;
+    color: #000000;
+    margin-top: -40px;
+    z-index: 1;
+}
+
+.payment-card h3,p,a{
+    color: #000000;
+}
+.paymentpage-btn{
+    width: 40%;
+    height: 35px;
+    font-weight: bold;
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.4); 
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.status-label {
+    position: absolute;
+    top: -25px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+.paymentpage-btn:hover,
+.paymentpage-btn:active{
+    width: 40%;
+    color: #000000;
+    border-radius: 8px;
+    border: 2px solid #000000;
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+.timer {
+    position: absolute;
+    top: 20px;            
+    right: 20px;
+    padding: 5px;     
+    background-color: rgb(213, 18, 37, 0.8);  
+    border: 2px solid #000000;  
+    border-radius: 8px;        
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;               
+}
+#countdown {
+    font-weight: bold;      
+    font-size: 16px;        
+    color: #ffffff;          
+}
+
 
 footer {
     background: #222;
@@ -1122,26 +1287,60 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    justify-content: center;
 }
+.stat-card-container h2{
+    font-weight: bold;
+    font-size: 28px;
+    margin: 20px;
+    margin-left: 50px;
+    margin-bottom: -20px;
+}
+
 .stat-cards{
+    margin: 30px;
     display: flex;
     gap: 40px;
     width: 100%;
     flex-wrap: wrap;
 }
+
 .stat-value{
     text-align: center;
     width: 30%;
     height: 100px;
-    background-color: #222;
+    background-color: rgba(0, 0, 0, 0.4); 
     color: #ddd;
     font-size: 26px;
     border-radius: 8px;
-    border: 0.2px solid #000000; 
+    border: 2px solid #000000;
+    transition: 
+        transform 0.3s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease, 
+        width 0.3s ease;
+        background-color: 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
-
-
+.stat-value:hover,
+.stat-value:active{
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.1);
+    z-index: 10;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+}
+.stat-value h1{
+    font-weight: bold;
+    margin-top: -10px;
+    color: #ffffff;
+}
+.stat-value p{
+    font-weight: bold;
+    font-size: 14px;
+    color: #000000;
+}
 .newitem-button-container{
     display: flex;
     width: 100%;
@@ -1176,35 +1375,105 @@ footer {
     gap: 10px;
     padding: 20px;
     justify-content: flex-end;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
-.newitemform input, textarea{
+.newitemform:hover,
+.newitemform:active{
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.newitemform input, .newitemform textarea{
     padding: 8px 15px;
     margin: 5px;
+    font-weight: bold;
     border-radius: 6px;
-    border: 1px solid #D9D9D9;
+    color: #ddd;
+    border: 2px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.4); 
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.newitemform textarea{
+    padding: 8px 15px;
+    margin: 5px;
+    font-weight: bold;
+    border-radius: 6px;
+    color: #ddd;
+    width: 36%;
+    border: 2px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.4); 
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 .newitemform select{
-    width: 38%;
+    width: 40%;
     height: 35px;
     padding: 8px 15px;
     margin: 5px;
+    color: #ddd;
+    font-weight: bold;
     border-radius: 6px;
-    border: 1px solid #D9D9D9;
+    border: 2px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.4); 
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.newitemform input::placeholder,
+.newitemform select option::placeholder,
+.newitemform textarea::placeholder{
+    color: #ddd;
+    font-weight: bold;
 }
 .newitemform button{
     width: 20%;
     height: 40px;
     padding: 4px 8px;
-    border: 1px #958585 solid;
+    color: #ddd;
+    font-weight: bold;
+    border: 2px #ddd solid;
     border-radius: 8px;
-    color: #958585;
-    background-color: #D9D9D9;
-    transition: 0.1s;
+    background-color: rgba(0, 0, 0, 0.4); 
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
-.newitemform button:hover{
-    color: #D9D9D9;
-    background-color: #959595;
-    border: 1px #ddd solid;
+.newitemform input:hover, input:active,
+.newitemform select:hover, select:active, 
+.newitemform textarea:hover, textarea:active{
+    background-color: rgba(0, 0, 0, 1); 
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+.newitemform button:hover, button:active{
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 1); 
+    border: 2px solid #ffffff;
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
 }
 
 .profile-container{

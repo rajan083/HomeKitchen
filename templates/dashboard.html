@@ -40,26 +40,27 @@
 <div class="item-container">
     {% if items %}
         {% for item in items %}
-            <div class="item-card">
+            <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
                 <a href="{{ url_for('item_details', item_id=item.id) }}">
                     <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
                 </a>
                 <div class="item-details">
-                    <h2>{{ item.name }}</h2>
-                    <p>₹{{ item.amount }}</p>
-                    <p>Vendor: {{ item.seller.name }}</p>
-                    <p>Stock: {{ item.stock }}</p>
-                    <p>{{ item.type }}</p>
-                    <p>{{ item.region }}</p>
+                    <h1 style="font-size: 56px;">{{ item.name }}</h1>    
+                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>₹</p><h1 style="font-size: 42px; margin-top:-10px;">{{ item.amount }}</h1></div><br>
+                    <div style="display: inline-flex; margin-right: 20px;"><img src="{{url_for('static', filename='images/chef-hat.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.seller.name }}</p></div>
+                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/grocery.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.stock }}</p></div><br>
+                    <div style="display: inline-flex; margin-right: 20px;"><img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;"><p style="margin-top:-0.1px;">{{ item.type }}</p></div>
+                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/location.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="margin-top:-0.1px;">{{ item.region }}</p></div>  
+                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/ingredient.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="font-weight: bold;">{{item.context}}</p></div>  
                 </div>
             </div>
         {% endfor %}
     {% else %}
         <p>No items found.</p>
     {% endif %}
-</div>
+</div><br><br><br>
 
-<h2>Our Vendors</h2>
+<h2>Our Vendors</h2><br>
 <div class="user-carousel-container">
     <div class="user-carousel">
         {% for user in users %}
@@ -68,11 +69,10 @@
                     <a href="{{ url_for('vendor_details', vendor_id=user.id) }}">
                         <img src="{{ url_for('static', filename=user.profile_image if user.profile_image else 'images/default-user.jpg') }}" alt="User Image">
                     </a>
-                    <div class="user-details">
-                        <h3>{{ user.name }}</h3>
-                        <p>ID: {{ user.id }}</p>
-                        <p>Email: {{ user.email }}</p>
-                        <p>Phone: {{ user.phone }}</p>
+                    <div class="user-details" style="font-weight: bold;">
+                        <h1 style="color: #000000; margin-bottom: -5px;">{{ user.name }}</h1>
+                        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/email.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 15px;"><p style="font-size: 16px; margin-bottom:-20px; color: #000000;">{{ user.email }}</p></div><br>
+                        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/phone.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 10px;"><p style="font-size: 14px; color: #000000; margin-bottom: 40px; ">{{ user.phone }}</p></div>
                     </div>
                 </div>
             {% endif %}

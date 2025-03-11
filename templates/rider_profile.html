@@ -12,6 +12,16 @@
     </form>
 </div>
 
+<div class="stat-card-container">
+    <h2>Rider Statistics</h2>
+    <div class="stat-cards">
+        <div class='stat-value'><p>Total Deliveries: <h1>{{ total_deliveries }}</h1></p></div>
+        <div class='stat-value'><p>Earnings This Month: <h1>₹{{ monthly_earnings }}</h1></p></div>
+        <div class='stat-value'><p>Earnings This Week: <h1>₹{{ weekly_earnings }}</h1></p></div> 
+    </div>
+</div>
+
+
 <div class= 'profile-page'>
     <div class="profile-container">
         <div class="profile">
@@ -51,11 +61,11 @@
                         <label for="longitude">Longitude:</label>
                         <input type="text" id="longitude" name="longitude" value="{{ rider.longitude }}" required>
                 
-                        <button type="button" onclick="getLocation()">Get Location</button>
+                        <button style="margin-left: -1px; width: 150px;" type="button" onclick="getLocation()">Get Location</button>
                         <div id="map" style="height: 400px; width: 400px; border-radius: 12px; margin-top: 10px;"></div>
                     </div>
                 </div>
-                <button type="submit" class='profile-submit'>Update Profile</button>
+                <button style="margin-left: 300px; position: relative; top: -300px; z-index: 999;" type="submit" class='profile-submit'>Update Profile</button>
             </form>
         </div>
 
@@ -151,15 +161,5 @@
         </script>
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-ZoIbb0vLDv2SGuzdHQeZ4V1kIJeDk7U&callback=initMap"></script>
     </div>
-    {% if rider.role == 'rider' %}
-    <div class="stat-card-container">
-        <h3>Rider Statistics</h3>
-        <div class="stat-cards">
-            <p class='stat-value'><strong>Total Deliveries:</strong> {{ total_deliveries }}</p>
-            <p class='stat-value'><strong>Earnings This Month:</strong> ₹{{ monthly_earnings }}</p>
-            <p class='stat-value'><strong>Earnings This Week:</strong> ₹{{ weekly_earnings }}</p>
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

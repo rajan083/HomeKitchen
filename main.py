@@ -295,6 +295,8 @@ def register():
 
 #=================================================LOGIN================================================
 
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -308,9 +310,13 @@ def login():
                 flash('Please verify your email before logging in.', 'warning')
                 return redirect(url_for('send_verification'))
 
+            # Store updated user data in session
             session['user_id'] = user.id
             session['user_role'] = user.role
             session['user_email'] = user.email
+            session['user_name'] = user.name
+            session['user_photo'] = user.photo
+            session.modified = True  # Ensure session refresh
 
             email_sent = send_welcome_email(user.email, user.name, is_registration=False)
             if not email_sent:
@@ -330,6 +336,7 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
 
 
 
@@ -1132,11 +1139,15 @@ def profile():
         try:
             user.name = request.form.get('name')
             user.phone = request.form.get('phone')
+            
+            user.latitude = request.form.get('latitude')
+            user.longitude = request.form.get('longitude')
 
             current_password = request.form.get('current_password')
             new_password = request.form.get('new_password')
             confirm_password = request.form.get('confirm_password')
 
+            # Handle password change
             if current_password and new_password and confirm_password:
                 if not user.check_password(current_password):
                     flash('Current password is incorrect.', 'danger')
@@ -1148,12 +1159,30 @@ def profile():
 
                 user.set_password(new_password)
 
+            # Handle profile image upload
+            if 'profile_image' in request.files:
+                file = request.files['profile_image']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    user.photo = f'images/{filename}'
+
+            # Handle UPI ID update for vendors
             if user.role == 'vendor':
                 user.upi_id = request.form.get('upi_id')
 
+            # Save to database
             db.session.commit()
+
+            # Update session data to reflect changes immediately
+            session['user_name'] = user.name
+            session['user_photo'] = user.photo
+            session.modified = True
+
             flash('Profile updated successfully!', 'success')
 
+            # Send email notification
             msg = Message(
                 'Profile Update Notification',
                 sender=app.config['MAIL_USERNAME'],
@@ -1177,6 +1206,7 @@ Your HomeKitchen Team
             db.session.rollback()
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
+
     return render_template('profile.html', user=user)
     
 
@@ -1196,7 +1226,7 @@ def rider_profile():
         flash('Please log in to access your profile.', 'danger')
         return redirect(url_for('rider_login'))
 
-    rider= db.session.get(Rider_kyc, session['rider_id'])
+    rider = db.session.get(Rider_kyc, session['rider_id'])
 
     if not rider:
         flash('Rider not found.', 'danger')
@@ -1216,15 +1246,30 @@ def rider_profile():
             if current_password and new_password and confirm_password:
                 if not rider.check_password(current_password):
                     flash('Current password is incorrect.', 'danger')
-                    return redirect(url_for('profile'))
+                    return redirect(url_for('rider_profile'))
 
                 if new_password != confirm_password:
                     flash('New passwords do not match.', 'danger')
-                    return redirect(url_for('profile'))
+                    return redirect(url_for('rider_profile'))
 
                 rider.set_password(new_password)
 
+            # Handle profile image upload
+            if 'profile_image' in request.files:
+                file = request.files['profile_image']
+                if file.filename:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    rider.photo = f'images/{filename}'
+
             db.session.commit()
+
+            # Update session variables
+            session['rider_name'] = rider.name
+            session['rider_photo'] = rider.photo
+            session.modified = True
+
             flash('Profile updated successfully!', 'success')
 
             msg = Message(
@@ -1244,14 +1289,12 @@ Your HomeKitchen Team
             """
             mail.send(msg)
 
-            return redirect(url_for('profile'))
+            return redirect(url_for('rider_profile'))
 
         except Exception as e:
             db.session.rollback()
             flash('An error occurred while updating your profile.', 'danger')
             print(f"Profile update error: {str(e)}")
-
-
 
     total_deliveries = 0
     monthly_earnings = 0
@@ -1285,8 +1328,7 @@ Your HomeKitchen Team
         total_deliveries=total_deliveries,
         monthly_earnings=monthly_earnings,
         weekly_earnings=weekly_earnings
-    )
-    
+    )    
     
 
 #====================================================DELETE ACCOUNT================================================
@@ -1441,6 +1483,9 @@ def rider_login():
             session['rider_id'] = rider.id
             session['rider_role'] = 'rider'
             session['rider_email'] = rider.email
+            session['rider_name'] = rider.name
+            session['rider_photo'] = rider.photo
+            session.modified = True
 
             email_sent = send_welcome_email(rider.email, rider.name, is_registration=False)
             if not email_sent:
@@ -1454,7 +1499,6 @@ def rider_login():
             return redirect(url_for('rider_login'))
 
     return render_template('rider_login.html')
-
 
 
 @app.route('/get_unverified_riders', methods=['GET'])

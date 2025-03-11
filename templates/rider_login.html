@@ -3,15 +3,15 @@
 {% block title %}HomeKitchen{% endblock title %}
 
 {% block content %}
-<div class='card-container'>
-    <div class='card'>
+<div class='registercard-container'>
+    <div class='registercard'>
         <form action="{{ url_for('rider_login') }}" method='POST'>
             <input type='email' placeholder='Email' name= 'Email'><br>
             <input type='password' placeholder='Password' name= 'Password'><br>
-            <button type='submit'>Login</button>
+            <button class="registercard-button" type='submit'>Login</button>
         </form>
-        <div>
-            <p>New User?<a href="{{ url_for('rider_kyc') }}">Click here to Register</a></p>
+        <div style="display: inline-flex;">
+            <p>New User?</p><a href="{{ url_for('rider_kyc') }}">Click here to Register</a>
         </div>
     </div>
 </div>

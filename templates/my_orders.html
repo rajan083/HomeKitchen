@@ -7,17 +7,22 @@
     {% if orders %}
         <ul>
             {% for order in orders %}
-                <li>
-                    <strong>Item:</strong> {{ order.item_name }} <br>
-                    <strong>Amount:</strong> ₹{{ order.amount }} <br>
-                    <strong>Payment Link:</strong> <a href="{{ order.upi_link }}" target="_blank">Pay Now</a> <br>
-                    <strong>Order Page:</strong> <a href="{{ url_for('payment_page', order_id= order.id) }}" target="_blank">To order page</a> <br>
-                    <strong>Status:</strong> {{ order.status }} <br>
-                </li>
-                <form action="{{ url_for('confirm_payment', order_id=order.id) }}" method="POST">
-                    <button type="submit">Confirm Payment</button>
-                </form>
-                
+                <div class="myorder-container">
+                    <div class="payment-card">
+                        <li>
+                            <p class="status-label">{{ order.status }}</p>
+                            <h1 style="font-size: 42px; margin-top: 15px;">{{ order.item_name }}</h1>    
+                            <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-left: 20px; margin-right: -8px; margin-top:-5px;"><p style="margin-top: -10px; margin-right: -10px;">₹</p><h1 style="font-size: 28px; margin-top:-10px;">{{ "%.2f"|format(order.amount) }}</h1></div><br>                
+                            <div style="display: flex; flex: 1; flex-wrap: wrap;">
+                                <a href="{{ order.upi_link }}" target="_blank"><button type="submit" class="paymentpage-btn" style="min-width: 100px; height: 50px;">Pay Now</button></a> <br>
+                                <a href="{{ url_for('payment_page', order_id= order.id) }}" target="_blank"><button type="submit" class="paymentpage-btn" style="min-width: 100px; height: 50px;">To order page</button></a> <br>
+                                <form action="{{ url_for('confirm_payment', order_id=order.id) }}" method="POST">
+                                    <button class="paymentpage-btn" type="submit" style="min-width: 100px; height: 50px;">Confirm Payment</button>
+                                </form>
+                            </div>
+                        </li>
+                    </div>
+                </div>
                 <hr>
             {% endfor %}
         </ul>
