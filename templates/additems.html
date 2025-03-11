@@ -76,7 +76,7 @@
 <h2>Submitted Items</h2>
 <div class="item-container">
     {% for item in items %}
-    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}'); padding: 40px;">
+    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
         <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
             <div>
                 <div class="item-details">

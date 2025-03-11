@@ -349,7 +349,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    if 'user_id' in session:
+    if 'user_id' in session or 'rider_id' in session:
         session.clear()
         flash('Logged out successfully!', 'info')
         return redirect(url_for('login'))
@@ -835,8 +835,16 @@ def place_order(item_id):
     order_id = str(uuid.uuid4())[:12]
     total_amount = round(amount * quantity, 2)  # ✅ Fixed: Ensuring amount is rounded properly
 
-    upi_link = f"upi://pay?pa={urllib.parse.quote(seller.upi_id)}&pn={urllib.parse.quote(seller.email)}&tid={order_id}&tr={order_id}&tn=OrderPayment&am={total_amount}&cu=INR"
-    
+    upi_link = (
+        f"upi://pay?"
+        f"pa={urllib.parse.quote(seller.upi_id)}"
+        f"&pn={urllib.parse.quote(seller.name)}"
+        f"&tid={order_id}"
+        f"&tr={order_id}"
+        f"&tn={urllib.parse.quote(f'Payment for Order #{order_id}')}"
+        f"&am={format(total_amount, '.2f')}"
+        f"&cu=INR"
+    )    
     estimated_delivery = datetime.datetime.utcnow() + timedelta(minutes=30)  # ✅ Delivery in 30 minutes
     
     
@@ -909,13 +917,29 @@ def payment_page(order_id):
 
 
 
+
 @app.route('/qr/<order_id>')
 def generate_qr(order_id):
     order = Order.query.get_or_404(order_id)
-    qr = qrcode.make(order.upi_link)
-    qr_path = f'static/QrCode/qr_{order_id}.png'
-    qr.save(qr_path)
+    
+    qr_dir = 'static/QrCode'
+    os.makedirs(qr_dir, exist_ok=True)
+    
+    qr = qrcode.QRCode(
+        version=1,               
+        error_correction=qrcode.constants.ERROR_CORRECT_L,  
+        box_size=10,             
+        border=4                  
+    )
+    qr.add_data(order.upi_link)
+    qr.make(fit=True)
+
+    qr_path = f'{qr_dir}/qr_{order_id}_{int(time.time())}.png'
+    qr_img = qr.make_image(fill='black', back_color='white')
+    qr_img.save(qr_path)
+
     return send_file(qr_path, mimetype='image/png', as_attachment=False)
+
 
 
             #====CLEAN-UP PRE-EXISTING QR CODES=====

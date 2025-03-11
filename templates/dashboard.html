@@ -27,7 +27,6 @@
                 {% for region in unique_regions %}
                     <option value="{{ region }}" {% if selected_region == region %}selected{% endif %}>{{ region }}</option>
                 {% endfor %}
-                <option value="Others" {% if selected_region == 'Others' %}selected{% endif %}>Others</option>
             </select>
             <input class="searchbar" type="search" name="search" placeholder="Search" value="{{ search_query if search_query else '' }}" required>
             <img src="{{ url_for('static', filename='images/search-icon.png') }}" alt="Search" class='search-icon' onclick="this.closest('form').submit();">
