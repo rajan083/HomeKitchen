@@ -4,12 +4,13 @@
 
 {% block content %}
 <style>
-    .registercard{
+    .registercard {
         background-size: cover;
         background-position: center;
         background-image: url("{{ url_for('static', filename='images/register-bg.jpg') }}");
     }
 </style>
+
 <div class='registercard-container'>
     <div class='registercard'>
         <form action="{{ url_for('register') }}" method='POST'>
@@ -18,7 +19,7 @@
                 <input type='number' placeholder='Phone' name='Phone' required>
             </div><br>
 
-            <select name="Role" id="role" placeholder="Role" required onchange="toggleUpiField()">
+            <select name="Role" id="role" required onchange="toggleFields()">
                 <option value="consumer">Consumer</option>
                 <option value="vendor">Vendor</option>
                 <option value="rider">Rider</option>
@@ -27,35 +28,56 @@
             <input type='email' placeholder='Email' name='Email' required><br>
             <input type='password' placeholder='Password' name='Password' required><br>
 
+            <!-- UPI Field (For Vendors Only) -->
             <div id="upiField" style="display: none;">
                 <input type='text' placeholder='UPI ID (yourname@bank)' name='UPI' id="UPI"><br>
+            </div>
+
+            <!-- Location Field (For Riders Only) -->
+            <div id="locationField" style="display: none;">
+                <input type='text' placeholder='Location' name='Location' id="Location"><br>
             </div>
 
             <button class="registercard-button" type='submit'>Register</button>
         </form>
 
         <div style="display: inline-flex;">
-            <p>Already registered?</p><a href="{{ url_for('login') }}">Click here to Login</a>
+            <p>Already registered?</p>
+            <a href="{{ url_for('login') }}">Click here to Login</a>
         </div>
     </div>
 </div>
 
 <script>
-function toggleUpiField() {
+function toggleFields() {
     const role = document.getElementById('role').value;
-    const upiField = document.getElementById('upiField');
-    const upiInput = document.getElementById('UPI'); 
 
+    const upiField = document.getElementById('upiField');
+    const upiInput = document.getElementById('UPI');
+
+    const locationField = document.getElementById('locationField');
+    const locationInput = document.getElementById('Location');
+
+    // Handle UPI Field (For Vendors Only)
     if (role === 'vendor') {
         upiField.style.display = 'block';
-        upiInput.setAttribute('required', 'true'); // Ensure required when vendor
+        upiInput.setAttribute('required', 'true');
     } else {
         upiField.style.display = 'none';
-        upiInput.removeAttribute('required'); // Remove required when consumer
+        upiInput.removeAttribute('required');
+    }
+
+    // Handle Location Field (For Riders Only)
+    if (role === 'consumer') {
+        locationField.style.display = 'block';
+        locationInput.setAttribute('required', 'true');
+    } else {
+        locationField.style.display = 'none';
+        locationInput.removeAttribute('required');
     }
 }
 
 // ✅ Ensure the correct field is displayed on page load
-document.addEventListener("DOMContentLoaded", toggleUpiField);
+document.addEventListener("DOMContentLoaded", toggleFields);
 </script>
 {% endblock content %}

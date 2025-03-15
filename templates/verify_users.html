@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Users</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .document-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .document-item img {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .document-item p {
+            text-align: center;
+            margin: 5px 0 0 0;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        .verify-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .reject-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        async function verifyRider(riderId) {
+            try {
+                const response = await fetch(`/verify_rider/${riderId}`, { method: 'POST' });
+                const result = await response.json();
+                alert(result.message);
+                location.reload();
+            } catch (error) {
+                console.error('Error verifying rider:', error);
+                alert('Failed to verify rider. Please try again.');
+            }
+        }
+
+        async function verifyVendor(vendorId) {
+            try {
+                const response = await fetch(`/verify_vendor/${vendorId}`, { method: 'POST' });
+                const result = await response.json();
+                alert(result.message);
+                location.reload();
+            } catch (error) {
+                console.error('Error verifying vendor:', error);
+                alert('Failed to verify vendor. Please try again.');
+            }
+        }
+
+        function rejectUser(userId, role) {
+            alert(`Rejection functionality for ${role} ID: ${userId} will be implemented soon.`);
+        }
+    </script>
+</head>
+<body>
+    <h1>Unverified Users</h1>
+
+    <!-- Riders Section -->
+    <h2>Unverified Riders</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Documents</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if riders %}
+                {% for rider in riders %}
+                <tr>
+                    <td>{{ rider.id }}</td>
+                    <td>{{ rider.name }}</td>
+                    <td>{{ rider.email }}</td>
+                    <td>{{ rider.phone }}</td>
+                    <td>
+                        <div class="document-container">
+                            {% if rider.id_proof_url %}
+                                <div class="document-item">
+                                    <img src="{{ rider.id_proof_url }}" alt="ID Proof">
+                                    <p>ID Proof</p>
+                                </div>
+                            {% endif %}
+                            {% if rider.license_url %}
+                                <div class="document-item">
+                                    <img src="{{ rider.license_url }}" alt="License">
+                                    <p>License</p>
+                                </div>
+                            {% endif %}
+                            {% if rider.insurance_url %}
+                                <div class="document-item">
+                                    <img src="{{ rider.insurance_url }}" alt="Insurance">
+                                    <p>Insurance</p>
+                                </div>
+                            {% endif %}
+                            {% if rider.photo_url %}
+                                <div class="document-item">
+                                    <img src="{{ rider.photo_url }}" alt="Photo">
+                                    <p>Photo</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="btn-group">
+                        <button class="verify-btn" onclick="verifyRider({{ rider.id }})">Verify</button>
+                        <button class="reject-btn" onclick="rejectUser({{ rider.id }}, 'Rider')">Reject</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="error">No unverified riders found</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- Vendors Section -->
+    <h2>Unverified Vendors</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Business Name</th>
+                <th>Documents</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if vendors %}
+                {% for vendor in vendors %}
+                <tr>
+                    <td>{{ vendor.id }}</td>
+                    <td>{{ vendor.name }}</td>
+                    <td>{{ vendor.email }}</td>
+                    <td>{{ vendor.phone }}</td>
+                    <td>{{ vendor.business_name }}</td>
+                    <td>
+                        <div class="document-container">
+                            {% if vendor.id_proof_url %}
+                                <div class="document-item">
+                                    <img src="{{ vendor.id_proof_url }}" alt="ID Proof">
+                                    <p>ID Proof</p>
+                                </div>
+                            {% else %}
+                                <p>No ID Proof Available</p>
+                            {% endif %}
+                    
+                            {% if vendor.photo_url %}
+                                <div class="document-item">
+                                    <img src="{{ vendor.photo_url }}" alt="Photo">
+                                    <p>Photo</p>
+                                </div>
+                            {% else %}
+                                <p>No Photo Available</p>
+                            {% endif %}
+                        </div>
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" class="error">No unverified vendors found</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</body>
+</html>

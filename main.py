@@ -8,6 +8,7 @@ from flask_mail import Mail, Message
 from twilio.rest import Client
 import uuid
 import time
+from decimal import Decimal
 import qrcode
 from werkzeug.utils import secure_filename
 import secrets
@@ -23,8 +24,9 @@ db=SQLAlchemy(app)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'rm4952989@gmail.com'
-app.config['MAIL_PASSWORD'] = 'qytf jjpo fxfa wlav'
+app.config['MAIL_PASSWORD'] = 'reko dlfw jqzj bnlb'
 app.config['MAIL_DEFAULT_SENDER'] = 'rm4952989@gmail.com'
 mail = Mail(app)
 
@@ -45,7 +47,7 @@ app.config['UPLOAD_FOLDER_ITEM'] = UPLOAD_FOLDER_ITEM
 
 
 
-#=================================================USER-DATABSE================================================
+#=================================================USER-DATABASE================================================
 
 
 
@@ -56,6 +58,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     upi_id = db.Column(db.String(50), nullable=True)
+    location= db.Column(db.String(255), nullable=True)
     role = db.Column(db.String(10), nullable=False)
     items = db.relationship('Item', backref='seller')
     created_at= db.Column(db.DateTime, default= datetime.datetime.utcnow)
@@ -80,6 +83,58 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+
+#=================================================RIDER-DATABASE================================================
+
+
+
+app.config['UPLOAD_FOLDER'] = 'static/UserInfo'
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+class Rider_kyc(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(15), nullable= False, unique=True)
+    email = db.Column(db.String(120),nullable=False, unique=True)
+    password_hash = db.Column(db.String(250), nullable=False)
+    role= db.Column(db.String(20), nullable=False)
+    created_at= db.Column(db.DateTime, default= datetime.datetime.utcnow)
+    email_verified = db.Column(db.Boolean, default=False)
+    address = db.Column(db.String(255), nullable=True)
+    vehicle_type= db.Column(db.String(50), nullable= True)
+    vehicle_number= db.Column(db.String(50), nullable=True)
+    id_proof = db.Column(db.String(200), nullable=True)
+    license = db.Column(db.String(200), nullable=True)
+    insurance = db.Column(db.String(200), nullable=True)
+    photo = db.Column(db.String(200), nullable=True)
+    verified = db.Column(db.Boolean, default=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
+
+#=================================================VENDOR-KYC================================================
+
+
+class Vendor_kyc(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    name= db.Column(db.String(100), nullable=False)
+    email= db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(10), nullable=False)
+    id_number= db.Column(db.String(100), nullable=False)
+    phone= db.Column(db.String(15), nullable=False, unique=True)
+    id_proof= db.Column(db.String(255), nullable=False)
+    photo_path= db.Column(db.String(255), nullable=False)
+    business_name = db.Column(db.String(150), nullable=True, unique=True)
+    verified = db.Column(db.Boolean, default=False)
 
 
 
@@ -121,12 +176,35 @@ class Order(db.Model):
     payment_status= db.Column(db.String(20), default="Pending")
     consumer_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable= True)
     vendor_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable= True)
-    rider_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable= True)
+    rider_id= db.Column(db.Integer, db.ForeignKey('rider_kyc.id'), nullable= True)
     status = db.Column(db.String(20))
     delivered_at = db.Column(db.DateTime, nullable= True)
     rider_fee = db.Column(db.Float, default=0.0)
     delivery_fee = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    consumer = db.relationship('User', primaryjoin="and_(Order.consumer_id == User.id, User.role == 'consumer')", backref='consumer_orders')
+    vendor = db.relationship('User', primaryjoin="and_(Order.vendor_id == User.id, User.role == 'vendor')", backref='vendor_orders')
+    rider = db.relationship('Rider_kyc', backref='rider_deliveries')
+    
+    
+RIDER_COMMISSION_RATE = Decimal('0.10')
+PLATFORM_COMMISSION_RATE = Decimal('0.10') 
+    
+    
+#=================================================PAYMENT================================================
+
+    
+    
+class Payment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.String(50), db.ForeignKey('order.id'), nullable=False)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    recipient_type = db.Column(db.String(20), nullable=False)
+    recipient_id = db.Column(db.Integer)
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+
 
 
     
@@ -259,6 +337,7 @@ def register():
         password = request.form.get('Password')
         role = request.form.get('Role')
         upi_id = request.form.get('UPI') if role == 'vendor' else None
+        location= request.form.get('Location') if role == 'consumer' else None
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -269,7 +348,7 @@ def register():
             flash('UPI ID is required for vendors!', 'danger')
             return redirect(url_for('register'))
 
-        new_user = User(name=name, email=email, phone=phone, role=role, upi_id=upi_id)
+        new_user = User(name=name, email=email, phone=phone, role=role, upi_id=upi_id, location=location)
         new_user.set_password(password)
 
         db.session.add(new_user)
@@ -387,15 +466,6 @@ def terms():
 
 #=================================================KYC================================================
 
-class Vendor_kyc(db.Model):
-    id= db.Column(db.Integer, primary_key=True)
-    name= db.Column(db.String(100), nullable=False)
-    email= db.Column(db.String(150), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
-    id_number= db.Column(db.String(100), nullable=False)
-    phone= db.Column(db.Integer, nullable=False, unique=True)
-    id_proof= db.Column(db.String(50), nullable=False)
-    photo_path= db.Column(db.String(50), nullable=False)
     
 UPLOAD_FOLDER = 'static/UserInfo'
 if not os.path.exists(UPLOAD_FOLDER):
@@ -411,6 +481,7 @@ def kyc():
         phone = request.form.get('Phone')
         id_number = request.form.get('Id_number')
         id_proof = request.files.get('Id_proof')
+        photo_path = request.files.get('Photo')
 
         existing_vendor = Vendor_kyc.query.filter_by(email=email).first()
         if existing_vendor:
@@ -420,8 +491,13 @@ def kyc():
         if not all([id_proof]):
             flash("All KYC documents are required!", "danger")
             return redirect(url_for('kyc'))
-
         id_proof_path = save_file(id_proof)
+        
+        if not all([photo_path]):
+            flash("All KYC documents are required!", "danger")
+            return redirect(url_for('kyc'))
+        id_proof_path = save_file(photo_path)
+        
         new_vendor = Vendor_kyc(
             name=name,
             email=email,
@@ -429,6 +505,7 @@ def kyc():
             id_number=id_number,
             role="vendor",
             id_proof=id_proof_path,
+            photo_path = photo_path
         )
 
         db.session.add(new_vendor)
@@ -833,7 +910,7 @@ def place_order(item_id):
         return redirect(url_for("dashboard"))
 
     order_id = str(uuid.uuid4())[:12]
-    total_amount = round(amount * quantity, 2)  # ✅ Fixed: Ensuring amount is rounded properly
+    total_amount = round(amount * quantity, 2)
 
     upi_link = (
         f"upi://pay?"
@@ -1043,7 +1120,7 @@ def my_orders():
         return redirect(url_for("login"))
 
     user_email = session["user_email"]
-    orders = Order.query.filter_by(user_email=user_email).all()
+    orders = Order.query.filter_by(user_email=user_email).order_by(Order.created_at.desc()).all()
 
     return render_template("my_orders.html", orders=orders)
 
@@ -1343,7 +1420,6 @@ Your HomeKitchen Team
             Order.status == 'delivered',
             Order.delivered_at.isnot(None),  # Ensure delivered_at is not NULL
             Order.delivered_at >= start_of_week,
-            Order.delivered_at < now
         ).scalar() or 0
 
     return render_template(
@@ -1394,34 +1470,6 @@ def delete_account():
 #====================================================RIDER KYC================================================
 
 
-app.config['UPLOAD_FOLDER'] = 'static/UserInfo'
-
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
-
-class Rider_kyc(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    phone = db.Column(db.String(15), nullable= False, unique=True)
-    email = db.Column(db.String(120),nullable=False, unique=True)
-    password_hash = db.Column(db.String(250), nullable=False)
-    role= db.Column(db.String(20), nullable=False)
-    created_at= db.Column(db.DateTime, default= datetime.datetime.utcnow)
-    email_verified = db.Column(db.Boolean, default=False)
-    address = db.Column(db.String(255), nullable=True)
-    vehicle_type= db.Column(db.String(50), nullable= True)
-    vehicle_number= db.Column(db.String(50), nullable=True)
-    id_proof = db.Column(db.String(200), nullable=True)
-    license = db.Column(db.String(200), nullable=True)
-    insurance = db.Column(db.String(200), nullable=True)
-    photo = db.Column(db.String(200), nullable=True)
-    verified = db.Column(db.Boolean, default=False)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 
 @app.route('/rider_kyc', methods=['GET', 'POST'])
@@ -1491,6 +1539,11 @@ def save_file(file):
     return None
 
 
+
+#=================================================RIDER LOGIN========================================================= 
+
+
+
 @app.route('/rider_login', methods=['GET', 'POST'])
 def rider_login():
     if request.method == 'POST':
@@ -1525,70 +1578,50 @@ def rider_login():
     return render_template('rider_login.html')
 
 
-@app.route('/get_unverified_riders', methods=['GET'])
-def get_unverified_riders():
-    riders = User.query.filter_by(role="rider", verified=False).all()
-    rider_list = []
-    
-    for rider in riders:
-        rider_data = {
-            "id": rider.id,
-            "name": rider.name,
-            "email": rider.email,
-            "phone": rider.phone,
-        }
-        
-        # Handle image URLs correctly
-        if rider.id_proof:
-            rider_data["id_proof"] = f"/uploads/{rider.id_proof}"
-        else:
-            rider_data["id_proof"] = ""
-            
-        if rider.license:
-            rider_data["license"] = f"/uploads/{rider.license}"
-        else:
-            rider_data["license"] = ""
-            
-        if rider.insurance:
-            rider_data["insurance"] = f"/uploads/{rider.insurance}"
-        else:
-            rider_data["insurance"] = ""
-            
-        if rider.photo:
-            rider_data["photo"] = f"/uploads/{rider.photo}"
-        else:
-            rider_data["photo"] = ""
-            
-        rider_list.append(rider_data)
-        
-    return jsonify({'riders': rider_list})
+
+#========================================================ADMIN==========================================================
 
 
 
-@app.route('/verify_riders', methods=['GET'])
-def verify_riders():
-    riders = User.query.filter_by(role="rider", verified=False).all()
-    
-    riders_data = []
-    for rider in riders:
-        rider_info = {
+@app.route('/verify_users', methods=['GET', 'POST'])
+def verify_users():
+    vendors = Vendor_kyc.query.filter_by(role="vendor", verified=False).all()
+    riders = Rider_kyc.query.filter_by(role="rider", verified=False).all()
+
+    riders_data = [
+        {
             'id': rider.id,
             'name': rider.name,
             'email': rider.email,
             'phone': rider.phone,
-            'id_proof_url': f"/uploads/{rider.id_proof}" if rider.id_proof else "",
-            'license_url': f"/uploads/{rider.license}" if rider.license else "",
-            'insurance_url': f"/uploads/{rider.insurance}" if rider.insurance else "",
-            'photo_url': f"/uploads/{rider.photo}" if rider.photo else ""
+            'id_proof_url': f"static/UserInfo/{rider.id_proof}" if rider.id_proof else "",
+            'license_url': f"static/UserInfo/{rider.license}" if rider.license else "",
+            'insurance_url': f"static/UserInfo/{rider.insurance}" if rider.insurance else "",
+            'photo_url': f"static/UserInfo/{rider.photo}" if rider.photo else ""
         }
-        riders_data.append(rider_info)
-    
-    return render_template('verify_riders.html', riders=riders_data)
+        for rider in riders
+    ]
+
+    vendors_data = [
+        {
+            'id': vendor.id,
+            'name': vendor.name,
+            'email': vendor.email,
+            'phone': vendor.phone,
+            'business_name': vendor.business_name,
+            'id_proof_url': f"static/UserInfo/{vendor.id_proof}" if vendor.id_proof else "",
+            'photo_url': f"static/UserInfo/{vendor.photo_path}" if vendor.photo_path else ""
+        }
+        for vendor in vendors
+    ]
+
+    return render_template('verify_users.html', riders=riders_data, vendors=vendors_data)
+
 
 
 @app.route('/verify_rider/<int:rider_id>', methods=['POST'])
 def verify_rider(rider_id):
-    rider = User.query.get(rider_id)
+    rider = Rider_kyc.query.get(rider_id)
     if not rider:
         return jsonify({'error': 'Rider not found'}), 404
 
@@ -1597,7 +1630,21 @@ def verify_rider(rider_id):
     return jsonify({'message': f'Rider {rider.name} verified successfully!'}), 200
 
 
+@app.route('/verify_vendor/<int:vendor_id>', methods=['POST'])
+def verify_vendor(vendor_id):
+    vendor = Vendor_kyc.query.filter_by(id=vendor_id, role='vendor').first()
+    if not vendor:
+        return jsonify({'error': 'Vendor not found'}), 404
+
+    vendor.verified = True
+    db.session.commit()
+    return jsonify({'message': f'Vendor {vendor.name} verified successfully!'}), 200
+
+
+
+
     
+#=================================================ASSIGN ORDERS========================================================= 
     
     
         
@@ -1630,25 +1677,11 @@ def assign_order():
         return render_template('assign_order.html', orders=orders, riders=riders)
 
 
-def calculate_rider_fee(order_amount):
-    return order_amount * 0.10 
 
 
-@app.route('/complete_delivery/<int:order_id>', methods=['POST'])
-def complete_delivery(order_id):
-    order = db.session.get(Order, order_id)
-    if not order or order.status != 'out_for_delivery':
-        flash("Invalid order or already completed!", "danger")
-        return redirect(url_for('dashboard'))
+#=================================================RIDERS ORDERS========================================================= 
 
-    order.rider_fee = calculate_rider_fee(order.amount)
-    order.status = 'delivered'
-    order.delivered_at = datetime.utcnow()
 
-    db.session.commit()
-
-    flash("Order marked as delivered! Rider earnings updated.", "success")
-    return redirect(url_for('profile'))
 
 
 
@@ -1697,7 +1730,6 @@ def rider_orders(rider_id):
 
 @app.route('/update_order_status/<string:order_id>/<string:status>', methods=['POST'])
 def update_order_status(order_id, status):
-    # Ensure only riders can update order status
     if "rider_id" not in session:
         flash("Only assigned riders can update order status.", "danger")
         return redirect(url_for("rider_profile"))
@@ -1728,7 +1760,6 @@ def update_order_status(order_id, status):
 
     db.session.commit()
     return redirect(url_for("rider_orders", rider_id=session["rider_id"]))
-
 
 
 

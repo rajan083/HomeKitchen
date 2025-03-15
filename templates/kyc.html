@@ -54,13 +54,13 @@
                     <option value="Passport">Passport</option>
                     <option value="Driver’s License">Driver’s License</option>
                 </select><br>
-                <input type="text" id="id_number" name="Id_number" placeholder="Id number" required><br>
-
+                <input type="text" id="id_number" name="Id_number" placeholder="Id number" required><br><br>
+                <label>Upload your identification proof</label>
                 <input type="file" id="id_proof" name="Id_proof" accept=".pdf,.jpg,.png" required>
-                <p>PDF/JPG/PNG are accepted only.</p><br>
-
+                <small>PDF/JPG/PNG are accepted only.</small><br><br>
+                <label>Upload your latest image</label>
                 <input type="file" id="photo" name="Photo" accept=".jpg,.png" required>
-                <p>JPG/PNG are accepted only.</p><br>
+                <small>JPG/PNG are accepted only.</small><br><br>
 
                 <div class='agreement'>
                     <label>
@@ -71,10 +71,8 @@
                 <button type="submit">Submit KYC</button>
             </form>
         </div>
-        <a href="{{ url_for('business_details') }}">
-            <button>Next</button>
-        </a>
     {% endif %}
+    <div  class='next-btn'><a href="{{ url_for('business_details') }}"><button>Next</button></a></div>
 </div>
 
 <script>
