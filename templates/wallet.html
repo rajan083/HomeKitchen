@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="top-right-buttons">
+    {% if session.get('rider_id') %}
+        <a href="{{ url_for('rider_profile') }}"><button>Back to Profile</button></a>
+    {% elif session.get('user_id') %}
+        <a href="{{ url_for('profile') }}"><button>Back to Profile</button></a>
+    {% endif %}
+</div>
+
+<h1>Wallet Dashboard</h1>
+
+<div class="wallet-container">
+    <div class="wallet-card">
+        {% if user %}
+            {% if user.role == 'vendor' %}
+                <h2>Vendor Wallet Balance: ₹{{ wallet_balance }}</h2>
+            {% elif user.role == 'consumer' %}
+                <h2>Consumer Wallet Balance: ₹{{ wallet_balance }}</h2>
+            {% endif %}
+        {% elif rider %}
+            <h2>Rider Wallet Balance: ₹{{ wallet_balance }}</h2>
+        {% endif %}
+
+        <!-- Display Recently Added Amount (if available) -->
+        {% if added_amount %}
+            <p style="color: green; font-weight: bold;">
+                ₹{{ added_amount }} successfully added to your wallet!
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="transaction-history">
+        <h2>Transaction History</h2>
+        {% if transactions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        {% if user and user.role == 'vendor' %}
+                            <th>Vendor Share</th>
+                        {% elif user and user.role == 'consumer' %}
+                            <th>Amount Spent</th>
+                        {% elif rider %}
+                            <th>Rider Share</th>
+                        {% endif %}
+                        <th>Platform Share</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.order_id }}</td>
+                        {% if user and user.role == 'vendor' %}
+                            <td>₹{{ transaction.vendor_share }}</td>
+                        {% elif user and user.role == 'consumer' %}
+                            <td>₹{{ transaction.amount }}</td>
+                        {% elif rider %}
+                            <td>₹{{ transaction.rider_share }}</td>
+                        {% endif %}
+                        <td>₹{{ transaction.platform_share }}</td>
+                        <td>{{ transaction.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No transactions found.</p>
+        {% endif %}
+    </div>
+
+    <div class="wallet-nav-btn">
+        <a href="{{ url_for('add_money') }}"><button>Add Money in Wallet</button></a>
+        <a href="{{ url_for('withdraw_money') }}"><button>Withdraw Money from Wallet</button></a>
+    </div>
+</div>
+
+{% endblock %}

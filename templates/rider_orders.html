@@ -22,6 +22,10 @@
             margin: 10px 0;
             background-color: #f8f9fa;
         }
+        .completed-label {
+            font-weight: bold;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -61,7 +65,6 @@
                                     
                                     {% if item.consumer.latitude and item.consumer.longitude %}
                                         <p><strong>Location:</strong>
-                                            <p><strong>Location:</strong> {{ item.vendor.location if item.vendor.location else '<em>Not provided</em>' | safe }}</p>
                                             <a href="https://www.google.com/maps?q={{ item.consumer.latitude }},{{ item.consumer.longitude }}" target="_blank">
                                                 View on Map
                                             </a>
@@ -93,13 +96,13 @@
                         
                         <!-- Action Buttons -->
                         <div class="mt-3">
-                            <form action="{{ url_for('update_order_status', order_id=item.id, status='in-transit') }}" method="POST">
-                                <button type="submit" class="btn btn-primary">Mark as In Transit</button>
-                            </form>
-                            <br>
-                            <form action="{{ url_for('update_order_status', order_id=item.id, status='delivered') }}" method="POST">
-                                <button type="submit" class="btn btn-success">Mark as Delivered</button>
-                            </form>                            
+                            {% if item.status != 'delivered' %}
+                                <form action="{{ url_for('update_order_status', order_id=item.id, status='delivered') }}" method="POST">
+                                    <button type="submit" class="btn btn-success">Complete Order</button>
+                                </form>
+                            {% else %}
+                                <span class="completed-label">Completed</span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

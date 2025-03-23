@@ -13,6 +13,7 @@
         <a href="{{ url_for('rider_orders', rider_id=user.id)}}"><button>Assigned Orders</button></a>
     {% endif %}
     <a href="{{ url_for('logout')}}"><button>Logout</button></a>
+    <a href="{{ url_for('wallet_dashboard')}}"><button>Wallet</button></a>
     <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible!');">
         <button type="submit" class="btn btn-danger">Delete My Account</button>
     </form>

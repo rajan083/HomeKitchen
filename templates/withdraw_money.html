@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Withdraw Money{% endblock %}
+
+{% block content %}
+<div class="top-right-buttons">
+    <a href="{{url_for('wallet_dashboard')}}"><button>Back to Wallet</button></a>
+</div>
+<h1>Withdraw Money from Your Wallet</h1>
+<div class= 'add-withdraw'>
+    <form action="{{ url_for('withdraw_money') }}" method="POST">
+        <label for="amount">Enter Amount (₹):</label>
+        <input type="number" id="amount" name="amount" min="1" required>
+    
+        <label for="upi_id">Enter Your UPI ID:</label>
+        <input type="text" id="upi_id" name="upi_id" placeholder="example@upi" required>
+    
+        <button type="submit">Withdraw Money</button>
+    </form>
+</div>
+{% endblock %}

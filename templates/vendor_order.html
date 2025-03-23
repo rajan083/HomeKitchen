@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Orders</h1>
+
+{% if orders %}
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Item Name</th>
+            <th>Amount</th>
+            <th>Payment Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.item_name }}</td>
+            <td>₹{{ order.amount }}</td>
+            <td>{{ order.payment_status }}</td>
+            <td>
+                {% if order.payment_status == 'Pending' %}
+                    <form action="{{ url_for('complete_order', order_id=order.id) }}" method="POST">
+                        <button type="submit" class="btn-complete">Complete Order</button>
+                    </form>
+                {% else %}
+                    <span class="completed-label">Completed</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No orders found.</p>
+{% endif %}
+
+<a href="{{ url_for('dashboard') }}" class="btn">Back to Dashboard</a>
+{% endblock %}

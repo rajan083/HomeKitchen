@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Admin Payment</h1>
+<p>Scan the QR code to transfer the platform share directly to the Admin.</p>
+
+<div class="qr-code">
+    <img src="{{ url_for('static', filename='qr_admin_payment.png') }}" alt="Admin UPI QR Code">
+</div>
+
+<a href="{{ url_for('dashboard') }}" class="btn">Back to Dashboard</a>
+{% endblock %}

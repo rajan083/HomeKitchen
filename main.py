@@ -75,6 +75,7 @@ class User(db.Model):
     insurance = db.Column(db.String(200), nullable=True)  # File path
     photo = db.Column(db.String(200), nullable=True)  # File path
     verified = db.Column(db.Boolean, default=False)
+    wallet_balance= db.Column(db.Float, default=0.0)
 
 
 
@@ -112,6 +113,8 @@ class Rider_kyc(db.Model):
     insurance = db.Column(db.String(200), nullable=True)
     photo = db.Column(db.String(200), nullable=True)
     verified = db.Column(db.Boolean, default=False)
+    wallet_balance= db.Column(db.Float, default=0.0)
+
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -187,26 +190,27 @@ class Order(db.Model):
     rider = db.relationship('Rider_kyc', backref='rider_deliveries')
     
     
-RIDER_COMMISSION_RATE = Decimal('0.10')
-PLATFORM_COMMISSION_RATE = Decimal('0.10') 
     
-    
-#=================================================PAYMENT================================================
+#=================================================TRANSACTION================================================
 
     
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    vendor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) 
+    consumer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) 
+    rider_id = db.Column(db.Integer, db.ForeignKey('rider_kyc.id'), nullable=True)  
+    vendor_share = db.Column(db.Float, nullable=False, default=0.0)
+    rider_share = db.Column(db.Float, nullable=False, default=0.0)
+    platform_share = db.Column(db.Float, nullable=False, default=0.0)
+    amount = db.Column(db.Float, nullable=False)
+    transaction_id = db.Column(db.String(100), nullable=False, unique=True)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+
+
+
     
-class Payment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.String(50), db.ForeignKey('order.id'), nullable=False)
-    amount = db.Column(db.Numeric(10, 2), nullable=False)
-    recipient_type = db.Column(db.String(20), nullable=False)
-    recipient_id = db.Column(db.Integer)
-    status = db.Column(db.String(20), default='pending')
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-
-
-
-
     
 #=================================================COMMENT DATABASE================================================
 
@@ -932,8 +936,8 @@ def place_order(item_id):
         amount=total_amount,
         quantity=quantity,
         upi_link=upi_link,
-        consumer_id=consumer.id,  # Add this line
-        vendor_id=seller.id       # Add this line
+        consumer_id=consumer.id,  
+        vendor_id=seller.id      
     )
     
     db.session.add(new_order)
@@ -990,8 +994,30 @@ def payment_page(order_id):
 
 #=================================================GENERATE QR================================================
             
-            
+@app.route('/generate_upi/<int:order_id>', methods=['GET'])
+def generate_upi(order_id):
+    order = db.session.query(Order).filter_by(id=order_id).first()
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
 
+    total_amount = order.total_amount
+    vendor = db.session.query(User).filter_by(id=order.vendor_id).first()
+
+    upi_link = (
+        f"upi://pay?pa={vendor.email}&pn={vendor.name}&am={total_amount}&cu=INR"
+    )
+
+    # Generate QR Code for UPI Payment
+    qr = qrcode.make(upi_link)
+    qr_path = f'static/qr_{order_id}.png'
+    qr.save(qr_path)
+
+    return jsonify({
+        "upi_link": upi_link,
+        "qr_code_url": qr_path
+    })        
+    
+    
 
 
 
@@ -1106,6 +1132,84 @@ def send_cancellation_email(vendor_email, order):
     except Exception as e:
         print(f"Error sending email: {e}")
 
+
+
+#======================================================WALLET====================================================
+
+
+@app.route('/wallet', methods=['GET'])
+def wallet_dashboard():
+    if 'user_id' not in session and 'rider_id' not in session:
+        flash('Please log in to access your wallet.', 'danger')
+        return redirect(url_for('login'))
+
+    user = db.session.get(User, session.get('user_id'))
+    rider = db.session.get(Rider_kyc, session.get('rider_id'))
+
+    if not user and not rider:
+        flash('User or Rider not found.', 'danger')
+        return redirect(url_for('logout'))
+
+    # Initialize wallet balance and transactions
+    wallet_balance = 0.0
+    transactions = []
+
+    # Transactions for Vendors/Consumers
+    if user:
+        if user.role == 'vendor':
+            transactions = Transaction.query.filter_by(vendor_id=user.id).all()
+        elif user.role == 'consumer':
+            transactions = Transaction.query.filter_by(consumer_id=user.id).all()
+        wallet_balance = user.wallet_balance
+
+    # Transactions for Riders
+    elif rider:
+        transactions = Transaction.query.filter_by(rider_id=rider.id).all()
+        wallet_balance = rider.wallet_balance
+
+    return render_template(
+        'wallet.html',
+        user=user,
+        rider=rider,
+        transactions=transactions,
+        wallet_balance=wallet_balance
+    )
+
+
+# =================== WALLET BALANCE API ======================
+
+@app.route('/wallet/<int:user_id>', methods=['GET'])
+def wallet(user_id):
+    user = db.session.query(User).filter_by(id=user_id).first()
+    rider = db.session.query(Rider_kyc).filter_by(id=user_id).first()
+
+    if not user and not rider:
+        return jsonify({"error": "User or Rider not found"}), 404
+
+    # Identify wallet balance correctly
+    if user:
+        wallet_balance = user.wallet_balance
+        if user.role == 'vendor':
+            transactions = db.session.query(Transaction).filter_by(vendor_id=user.id).all()
+        elif user.role == 'consumer':
+            transactions = db.session.query(Transaction).filter_by(consumer_id=user.id).all()
+    elif rider:
+        wallet_balance = rider.wallet_balance
+        transactions = db.session.query(Transaction).filter_by(rider_id=rider.id).all()
+
+    return jsonify({
+        "wallet_balance": wallet_balance,
+        "transactions": [
+            {
+                "order_id": t.order_id,
+                "vendor_share": t.vendor_share,
+                "rider_share": t.rider_share,
+                "platform_share": t.platform_share,
+                "timestamp": t.timestamp
+            }
+            for t in transactions
+        ]
+    })
 
 
 
@@ -1642,6 +1746,21 @@ def verify_vendor(vendor_id):
 
 
 
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        name = request.form.get('Name')
+        password= request.form.get('Password')
+        
+        if name == 'Rajan' and password == 'Redrajen@083':
+            flash('Admin logged in successfully!', 'success')
+            return redirect(url_for('verify_users'))
+        else:
+            flash('Unauthoriized login', 'danger')
+            return redirect(url_for('home'))
+    return render_template('admin_login.html')
+
+
 
     
 #=================================================ASSIGN ORDERS========================================================= 
@@ -1728,45 +1847,210 @@ def rider_orders(rider_id):
 
 
 
+#=====================================================UPDATE ORDER STATUS=====================================================
+
+# Change Decimal values to floats
+RIDER_COMMISSION_RATE = 0.10
+PLATFORM_COMMISSION_RATE = 0.10
+ADMIN_UPI_ID = '6283060669@ptsbi'
+
 @app.route('/update_order_status/<string:order_id>/<string:status>', methods=['POST'])
 def update_order_status(order_id, status):
     if "rider_id" not in session:
         flash("Only assigned riders can update order status.", "danger")
         return redirect(url_for("rider_profile"))
-
     # Fetch the order from the database
     order = db.session.get(Order, order_id)
     if not order:
         flash("Order not found.", "danger")
         return redirect(url_for("rider_profile"))
-
     # Ensure the logged-in rider is assigned to this order
     if order.rider_id != session["rider_id"]:
         flash("You are not assigned to this order.", "danger")
         return redirect(url_for("rider_profile"))
-
     # Update order status
     if status.lower() == "in-transit":
         order.status = "in-transit"
         flash("Order marked as In Transit.", "success")
-
     elif status.lower() == "delivered":
+        if order.payment_status == "Completed":
+            flash("This order has already been marked as Delivered.", "info")
+            return redirect(url_for("rider_orders", rider_id=session["rider_id"]))
+        
+        # Convert total_amount to float if it's a Decimal
+        total_amount = float(order.amount) if hasattr(order.amount, 'quantize') else order.amount
+        
+        # Calculate shares using float values
+        rider_share = total_amount * RIDER_COMMISSION_RATE
+        platform_share = total_amount * PLATFORM_COMMISSION_RATE
+        vendor_share = total_amount - (rider_share + platform_share)
+        
+        # Update Wallet Balances
+        if order.vendor_id:
+            vendor = db.session.get(User, order.vendor_id)
+            if vendor:
+                vendor.wallet_balance += vendor_share
+        
+        if order.rider_id:
+            rider = db.session.get(Rider_kyc, order.rider_id)
+            if rider:
+                rider.wallet_balance += rider_share
+        
+        # Add platform share automatically to admin wallet
+        # Assuming you have an Admin model or a specific admin user
+        admin = db.session.get(User, 1)  # Replace with how you identify the admin user
+        if admin:
+            admin.wallet_balance += platform_share
+        
+        # Create Transaction Record
+        transaction_id = str(uuid.uuid4())
+        new_transaction = Transaction(
+            order_id=order.id,
+            amount=total_amount,
+            transaction_id=transaction_id,
+            vendor_share=vendor_share,
+            rider_share=rider_share,
+            platform_share=platform_share
+        )
+        
+        # Mark Order as Completed
         order.status = "delivered"
-        order.delivered_at = datetime.datetime.utcnow()  # Set the delivered time
-        flash("Order marked as Delivered.", "success")
-
+        order.delivered_at = datetime.datetime.utcnow()
+        order.payment_status = "Completed"
+        
+        # Save Changes
+        db.session.add(new_transaction)
+        db.session.commit()
+        
+        flash("Order marked as Delivered. Payment has been distributed.", "success")
+        return redirect(url_for("rider_orders", rider_id=session["rider_id"]))
     else:
         flash("Invalid status update.", "danger")
-
+    
     db.session.commit()
     return redirect(url_for("rider_orders", rider_id=session["rider_id"]))
 
 
 
-#=================================================RUN================================================
+#=================================================ADD MONEY TO WALLET================================================
 
-    
-    
+
+
+@app.route('/add_money', methods=['GET', 'POST'])
+def add_money():
+    if 'user_id' not in session:
+        flash('Please log in to add money to your wallet.', 'danger')
+        return redirect(url_for('login'))
+
+    user = db.session.get(User, session['user_id'])
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('logout'))
+
+    if request.method == 'POST':
+        amount = request.form.get('amount')
+        if not amount or not amount.isdigit() or int(amount) <= 0:
+            flash('Please enter a valid amount.', 'danger')
+            return redirect(url_for('add_money'))
+
+        amount = float(amount)
+        upi_id = request.form.get('upi_id')
+        if not upi_id:
+            flash('Please enter your UPI ID.', 'danger')
+            return redirect(url_for('add_money'))
+
+        # Generate UPI payment link
+        upi_link = (
+            f"upi://pay?pa={upi_id}&pn={user.name}&am={amount}&cu=INR"
+        )
+
+        # Generate QR Code for UPI Payment
+        qr = qrcode.make(upi_link)
+        qr_path = f'static/qr_add_money_{user.id}.png'
+        qr.save(qr_path)
+
+        # Add Transaction Entry (Assuming payment is successful)
+        transaction_id = str(uuid.uuid4())  # Unique transaction ID
+        new_transaction = Transaction(
+            order_id=user.id,
+            amount=amount,
+            transaction_id=transaction_id,
+            vendor_share=0.0,  
+            rider_share=0.0,
+            platform_share=0.0
+        )
+
+        # Update Wallet Balance
+        user.wallet_balance += amount
+        db.session.add(new_transaction)
+        db.session.commit()
+
+        flash(f'₹{amount} added successfully to your wallet.', 'success')
+        return render_template('add_money.html', upi_link=upi_link, qr_path=qr_path, user=user)
+
+    return render_template('add_money.html', user=user)
+
+
+
+    #=================================================WITHDRAW MONEY FROM WALLET================================================
+
+
+
+@app.route('/withdraw_money', methods=['GET', 'POST'])
+def withdraw_money():
+    if 'user_id' not in session:
+        flash('Please log in to withdraw money from your wallet.', 'danger')
+        return redirect(url_for('login'))
+
+    user = db.session.get(User, session['user_id'])
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('logout'))
+
+    if request.method == 'POST':
+        amount = request.form.get('amount')
+        if not amount or not amount.isdigit() or float(amount) <= 0:
+            flash('Please enter a valid amount.', 'danger')
+            return redirect(url_for('withdraw_money'))
+
+        amount = float(amount)
+        
+        # Ensure sufficient balance
+        if amount > user.wallet_balance:
+            flash('Insufficient wallet balance.', 'danger')
+            return redirect(url_for('withdraw_money'))
+
+        upi_id = request.form.get('upi_id')
+        if not upi_id:
+            flash('Please enter your UPI ID.', 'danger')
+            return redirect(url_for('withdraw_money'))
+
+        # Deduct amount from wallet balance
+        user.wallet_balance -= amount
+
+        # Add transaction entry
+        transaction_id = str(uuid.uuid4())  # Unique transaction ID
+        new_transaction = Transaction(
+            order_id=user.id,
+            amount=-amount,  # Negative value for withdrawal
+            transaction_id=transaction_id,
+            vendor_share=0.0,
+            rider_share=0.0,
+            platform_share=0.0
+        )
+
+        db.session.add(new_transaction)
+        db.session.commit()
+
+        flash(f'₹{amount} withdrawn successfully. The amount will be credited to your UPI ID shortly.', 'success')
+        return redirect(url_for('wallet_dashboard'))
+
+    return render_template('withdraw_money.html', user=user)
+
+
+
+    #=================================================RUN================================================
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
