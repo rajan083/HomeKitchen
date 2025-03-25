@@ -36,48 +36,138 @@
 
 <h2>Today's Menu</h2>
 
-<div class="item-container">
-    {% if items %}
-        {% for item in items %}
-            <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
-                <a href="{{ url_for('item_details', item_id=item.id) }}">
-                    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
-                </a>
-                <div class="item-details">
-                    <h1 style="font-size: 56px;">{{ item.name }}</h1>    
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>₹</p><h1 style="font-size: 42px; margin-top:-10px;">{{ item.amount }}</h1></div><br>
-                    <div style="display: inline-flex; margin-right: 20px;"><img src="{{url_for('static', filename='images/chef-hat.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.seller.name }}</p></div>
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/grocery.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.stock }}</p></div><br>
-                    <div style="display: inline-flex; margin-right: 20px;"><img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;"><p style="margin-top:-0.1px;">{{ item.type }}</p></div>
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/location.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="margin-top:-0.1px;">{{ item.region }}</p></div>  
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/ingredient.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="font-weight: bold;">{{item.context}}</p></div>  
+<div class="carousel-container">
+    <button class="carousel-btn left" onclick="scrollCarousel('left')">&#10094;</button>
+    <div class="carousel">
+        {% if items %}
+            {% for item in items %}
+                <div class="carousel-item">
+                    <div class="item-card">
+                        <a href="{{ url_for('item_details', item_id=item.id) }}">
+                            <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+                        </a>
+                        <div class="item-details">
+                            <h1 style="font-size: 32px;">{{ item.name }}</h1>    
+                            <div style="display: inline-flex;">
+                                <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <p>₹</p><h1 style="font-size: 22px; margin-top:-10px;">{{ item.amount }}</h1>
+                            </div><br>
+                            <div style="display: inline-flex; margin-right: 20px;">
+                                <img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;">
+                                <p style="margin-top:-0.1px;">{{ item.type }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No items found.</p>
-    {% endif %}
-</div><br><br><br>
+            {% endfor %}
+        {% else %}
+            <p>No items found.</p>
+        {% endif %}
+    </div>
+    <button class="carousel-btn right" onclick="scrollCarousel('right')">&#10095;</button>
+</div>
+<br><br><br>
+
+<h2>Most Popular Items</h2>
+<div class="carousel-container">
+    <button class="carousel-btn left" onclick="scrollCarousel('popular', 'left')">&#10094;</button>
+    <div class="carousel" id="popular-carousel">
+        {% if popular_items %}
+            {% for item in popular_items %}
+                <div class="carousel-item">
+                    <div class="item-card">
+                        <a href="{{ url_for('item_details', item_id=item.id) }}">
+                            <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+                        </a>
+                        <div class="item-details">
+                            <h1 style="font-size: 32px;">{{ item.name }}</h1>    
+                            <div style="display: inline-flex;">
+                                <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <p>₹</p><h1 style="font-size: 22px; margin-top:-10px;">{{ item.amount }}</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No popular items found.</p>
+        {% endif %}
+    </div>
+    <button class="carousel-btn right" onclick="scrollCarousel('popular', 'right')">&#10095;</button>
+</div>
+
+
+<h2>Categories</h2>
+{% for category, items in categorized_items.items() %}
+    <h3>{{ category }}</h3>
+    <div class="carousel-container">
+        <button class="carousel-btn left" onclick="scrollCarousel('{{ category|replace(' ', '_') }}', 'left')">&#10094;</button>
+        <div class="carousel" id="{{ category|replace(' ', '_') }}-carousel">
+            {% if items %}
+                {% for item in items %}
+                    <div class="carousel-item">
+                        <div class="item-card">
+                            <a href="{{ url_for('item_details', item_id=item.id) }}">
+                                <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+                            </a>
+                            <div class="item-details">
+                                <h1>{{ item.name }}</h1>    
+                                <p>₹{{ item.amount }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No items available in this category.</p>
+            {% endif %}
+        </div>
+        <button class="carousel-btn right" onclick="scrollCarousel('{{ category|replace(' ', '_') }}', 'right')">&#10095;</button>
+    </div>
+{% endfor %}
+
 
 <h2>Our Vendors</h2><br>
-<div class="user-carousel-container">
-    <div class="user-carousel">
+<div class="carousel-container">
+    <button class="carousel-btn left" onclick="scrollCarousel('vendors', 'left')">&#10094;</button>
+    <div class="carousel" id="vendors-carousel">
         {% for user in users %}
             {% if user.role == 'vendor' %}
-                <div class="user-card">
-                    <a href="{{ url_for('vendor_details', vendor_id=user.id) }}">
-                        <img src="{{ url_for('static', filename=user.profile_image if user.profile_image else 'images/default-user.jpg') }}" alt="User Image">
-                    </a>
-                    <div class="user-details" style="font-weight: bold;">
-                        <h1 style="color: #000000; margin-bottom: -5px;">{{ user.name }}</h1>
-                        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/email.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 15px;"><p style="font-size: 16px; margin-bottom:-20px; color: #000000;">{{ user.email }}</p></div><br>
-                        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/phone.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 10px;"><p style="font-size: 14px; color: #000000; margin-bottom: 40px; ">{{ user.phone }}</p></div>
+                <div class="carousel-item">
+                    <div class="user-card">
+                        <a href="{{ url_for('vendor_details', vendor_id=user.id) }}">
+                            <img src="{{ url_for('static', filename=user.profile_image if user.profile_image else 'images/default-user.jpg') }}" alt="User Image">
+                        </a>
+                        <div class="user-details" style="font-weight: bold;">
+                            <h1 style="color: #000000; margin-bottom: -5px;">{{ user.name }}</h1>
+                            <div style="display: inline-flex;">
+                                <img src="{{ url_for('static', filename='images/email.png') }}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 15px;">
+                                <p style="font-size: 16px; margin-bottom:-20px; color: #000000;">{{ user.email }}</p>
+                            </div><br>
+                            <div style="display: inline-flex;">
+                                <img src="{{ url_for('static', filename='images/phone.png') }}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 10px;">
+                                <p style="font-size: 14px; color: #000000; margin-bottom: 40px;">{{ user.phone }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             {% endif %}
         {% endfor %}
     </div>
+    <button class="carousel-btn right" onclick="scrollCarousel('vendors', 'right')">&#10095;</button>
 </div>
+
+<script>
+    function scrollCarousel(direction) {
+        const carousel = document.querySelector('.carousel');
+        const scrollAmount = 300; // Adjust based on item width
+
+        if (direction === 'left') {
+            carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        } else {
+            carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+</script>
 
 
 {% endblock content %}

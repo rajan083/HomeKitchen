@@ -161,6 +161,8 @@ class Item(db.Model):
     region= db.Column(db.String(100), nullable= True)
     dislikes = db.Column(db.Integer, default=0)
     comments = db.relationship('Comment', backref='item', lazy=True)
+    categories = db.Column(db.String(50), nullable=True)
+    order_count = db.Column(db.Integer, default=0)  
 
 
     
@@ -593,6 +595,7 @@ def additems():
         amount= request.form["Amount"]
         stock = int(request.form["Stock"])
         region= request.form['Region']
+        categories = request.form['Categories']
         type= request.form['Type']
         
 
@@ -604,7 +607,7 @@ def additems():
         else:
             image_url = None
 
-        new_item = Item(itemid=itemId, name=name, context=context, image_url=image_url,stock=stock, amount=amount, user_id=user_id, region=region, type=type)
+        new_item = Item(itemid=itemId, name=name, context=context, image_url=image_url,stock=stock, amount=amount, user_id=user_id, region=region, type=type, categories=categories)
         db.session.add(new_item)
         db.session.commit()
 
@@ -698,27 +701,43 @@ def purchase_item(item_id):
 
 
 
-
-
-@app.route('/dashboard', methods=['GET'])
+@app.route('/dashboard')
 def dashboard():
-    search_query = request.args.get('search', '')
-    selected_region = request.args.get('region', '')
+    search_query = request.args.get('search', '').strip()
+    selected_region = request.args.get('region', '').strip()
     query = Item.query.join(User)
     if search_query:
-        query = query.filter((Item.name.ilike(f"%{search_query}%")) | (Item.context.ilike(f"%{search_query}%")) | (User.name.ilike(f"%{search_query}%")))
+        query = query.filter(
+            (Item.name.ilike(f"%{search_query}%")) |
+            (Item.context.ilike(f"%{search_query}%")) |
+            (User.name.ilike(f"%{search_query}%"))
+        )
     if selected_region:
         if selected_region == "Others":
-            query = query.filter(or_(Item.region == None, Item.region == ""))
+            query = query.filter(or_(Item.region.is_(None), Item.region == ""))
         else:
             query = query.filter(Item.region == selected_region)
     items = query.all()
-    users = User.query.all()
+    popular_items = Item.query.order_by(Item.order_count.desc()).limit(5).all()
+    categories = ["Breakfast", "Lunch", "Dinner", "Desserts", "Drinks"]
+    categorized_items = {
+        category: Item.query.filter(Item.categories == category).order_by(Item.order_count.desc()).limit(5).all()
+        for category in categories
+    }
+    users = User.query.filter_by(role='vendor').all()
     unique_regions = db.session.query(Item.region).distinct().all()
     unique_regions = [r[0] for r in unique_regions if r[0]]
-    return render_template('dashboard.html', items=items, users=users, search_query=search_query, unique_regions=unique_regions, selected_region=selected_region)
 
-
+    return render_template(
+        'dashboard.html',
+        items=items,
+        users=users,
+        popular_items=popular_items,
+        categorized_items=categorized_items,
+        unique_regions=unique_regions,
+        search_query=search_query,
+        selected_region=selected_region
+    )
 
 
 #=================================================VENDOR DETAIL PAGE================================================
@@ -942,6 +961,7 @@ def place_order(item_id):
     
     db.session.add(new_order)
     item.stock -= quantity
+    order_count += 1
     db.session.commit()
 
     flash('Order placed successfully! Complete payment to confirm.', 'info')

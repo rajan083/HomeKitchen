@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="item-container" style="padding: 30px;">
-    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image" style="width: 500px; height:500px; border-radius: 15px;">
+    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image" style="width: 450px; height:450px; border-radius: 15px;">
     <div class="item-details">
         <h1 style="font-size: 56px;">{{ item.name }}</h1>    
         <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>₹</p><h1 style="font-size: 42px; margin-top:-10px;">{{ item.amount }}</h1></div><br>
