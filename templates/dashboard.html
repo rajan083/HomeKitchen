@@ -19,11 +19,6 @@
         <div class="search-wrapper">
             <select name="region" class="region-dropdown">
                 <option value="">All Regions</option>
-                <option value="North Africa">North Africa</option>
-                <option value="West Africa">West Africa</option>
-                <option value="Central Africa">Central Africa</option>
-                <option value="East Africa">East Africa</option>
-                <option value="South Africa">South Africa</option>
                 {% for region in unique_regions %}
                     <option value="{{ region }}" {% if selected_region == region %}selected{% endif %}>{{ region }}</option>
                 {% endfor %}
@@ -35,14 +30,13 @@
 </div>
 
 <h2>Today's Menu</h2>
-
 <div class="carousel-container">
-    <button class="carousel-btn left" onclick="scrollCarousel('left')">&#10094;</button>
-    <div class="carousel">
+    <button class="carousel-btn left" onclick="scrollCarousel('main', 'left')">&#10094;</button>
+    <div class="carousel" id="main-carousel">
         {% if items %}
             {% for item in items %}
                 <div class="carousel-item">
-                    <div class="item-card">
+                    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}'); backdrop-filter: blur(10px);">
                         <a href="{{ url_for('item_details', item_id=item.id) }}">
                             <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
                         </a>
@@ -51,11 +45,19 @@
                             <div style="display: inline-flex;">
                                 <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 20px; height: 20px; margin-right: 8px;">
                                 <p>₹</p><h1 style="font-size: 22px; margin-top:-10px;">{{ item.amount }}</h1>
-                            </div><br>
-                            <div style="display: inline-flex; margin-right: 20px;">
-                                <img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;">
-                                <p style="margin-top:-0.1px;">{{ item.type }}</p>
                             </div>
+                            <div style="display: inline-flex; align-items: center; margin-right: 20px;">
+                                {% set food_type = item.type.lower() %}
+                                {% if food_type == 'veg' %}
+                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" 
+                                        alt="Veg" style="width:20px; height: 20px; margin-right: 10px;">
+                                {% elif food_type == 'non-veg' %}
+                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" 
+                                        alt="Non-Veg" style="width:20px; height: 20px; margin-right: 10px;">
+                                {% endif %}
+                                <p style="margin: 0;">{{ item.type }}</p>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -64,7 +66,7 @@
             <p>No items found.</p>
         {% endif %}
     </div>
-    <button class="carousel-btn right" onclick="scrollCarousel('right')">&#10095;</button>
+    <button class="carousel-btn right" onclick="scrollCarousel('main', 'right')">&#10095;</button>
 </div>
 <br><br><br>
 
@@ -75,7 +77,7 @@
         {% if popular_items %}
             {% for item in popular_items %}
                 <div class="carousel-item">
-                    <div class="item-card">
+                    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}'); backdrop-filter: blur(10px);">
                         <a href="{{ url_for('item_details', item_id=item.id) }}">
                             <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
                         </a>
@@ -85,6 +87,18 @@
                                 <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 20px; height: 20px; margin-right: 8px;">
                                 <p>₹</p><h1 style="font-size: 22px; margin-top:-10px;">{{ item.amount }}</h1>
                             </div>
+                            <div style="display: inline-flex; align-items: center; margin-right: 20px;">
+                                {% set food_type = item.type.lower() %}
+                                {% if food_type == 'veg' %}
+                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" 
+                                        alt="Veg" style="width:20px; height: 20px; margin-right: 10px;">
+                                {% elif food_type == 'non-veg' %}
+                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" 
+                                        alt="Non-Veg" style="width:20px; height: 20px; margin-right: 10px;">
+                                {% endif %}
+                                <p style="margin: 0;">{{ item.type }}</p>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -106,13 +120,24 @@
             {% if items %}
                 {% for item in items %}
                     <div class="carousel-item">
-                        <div class="item-card">
+                        <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}'); backdrop-filter: blur(10px);">
                             <a href="{{ url_for('item_details', item_id=item.id) }}">
                                 <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
                             </a>
                             <div class="item-details">
                                 <h1>{{ item.name }}</h1>    
                                 <p>₹{{ item.amount }}</p>
+                            </div>
+                            <div style="display: inline-flex; align-items: center; margin-right: 20px;">
+                                {% set food_type = item.type.lower() %}
+                                {% if food_type == 'veg' %}
+                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" 
+                                        alt="Veg" style="width:20px; height: 20px; margin-right: 10px;">
+                                {% elif food_type == 'non-veg' %}
+                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" 
+                                        alt="Non-Veg" style="width:20px; height: 20px; margin-right: 10px;">
+                                {% endif %}
+                                <p style="margin: 0;">{{ item.type }}</p>
                             </div>
                         </div>
                     </div>
@@ -157,8 +182,21 @@
 </div>
 
 <script>
-    function scrollCarousel(direction) {
-        const carousel = document.querySelector('.carousel');
+    function scrollCarousel(carouselId, direction) {
+        let carousel;
+        
+        if (carouselId && direction) {
+            // For specific carousel
+            carousel = document.getElementById(carouselId + '-carousel');
+        } else if (!direction) {
+            // Old-style call with just direction
+            direction = carouselId;
+            carousel = document.querySelector('.carousel');
+        } else {
+            // Fallback to main carousel
+            carousel = document.querySelector('.carousel');
+        }
+        
         const scrollAmount = 300; // Adjust based on item width
 
         if (direction === 'left') {

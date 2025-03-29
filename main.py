@@ -886,7 +886,6 @@ def update_stock(item_id):
 
     
 
-
 @app.route('/place_order/<int:item_id>', methods=['POST'])
 def place_order(item_id):
     if "user_email" not in session or session.get("user_role") != "consumer":
@@ -936,8 +935,7 @@ def place_order(item_id):
     total_amount = round(amount * quantity, 2)
 
     upi_link = (
-        f"upi://pay?"
-        f"pa={urllib.parse.quote(seller.upi_id)}"
+        f"upi://pay?pa={urllib.parse.quote(seller.upi_id)}"
         f"&pn={urllib.parse.quote(seller.name)}"
         f"&tid={order_id}"
         f"&tr={order_id}"
@@ -945,9 +943,8 @@ def place_order(item_id):
         f"&am={format(total_amount, '.2f')}"
         f"&cu=INR"
     )    
-    estimated_delivery = datetime.datetime.utcnow() + timedelta(minutes=30)  # ✅ Delivery in 30 minutes
-    
-    
+    estimated_delivery = datetime.datetime.utcnow() + timedelta(minutes=30)
+
     new_order = Order(
         id=order_id,
         item_name=item_name,
@@ -961,40 +958,15 @@ def place_order(item_id):
     
     db.session.add(new_order)
     item.stock -= quantity
+
+    # ✅ Initialize `order_count` before using it
+    order_count = Order.query.count()  # Fetch total order count
     order_count += 1
+
     db.session.commit()
 
     flash('Order placed successfully! Complete payment to confirm.', 'info')
     return redirect(url_for('payment_page', order_id=order_id))
-
-                #========ORDER CONFIRMATION EMAIL========
-
-def send_order_confirmation_email(consumer_email, order):
-    subject = "Order Confirmation - HomeKitchen"
-    body = f"""
-    Hello,
-
-    Your order has been successfully placed! Here are the details:
-
-    - Order ID: {order.id}
-    - Item: {order.item_name}
-    - Quantity: {order.quantity}
-    - Amount: ₹{order.amount}
-    - Estimated Delivery: {order.estimated_delivery.strftime('%Y-%m-%d %H:%M:%S')} UTC
-
-    Thank you for shopping with us!
-
-    Regards,  
-    HomeKitchen Team
-    """
-
-    msg = Message(subject=subject, recipients=[consumer_email], body=body)
-    
-    try:
-        mail.send(msg)
-        print("Order confirmation email sent successfully.")
-    except Exception as e:
-        print(f"Error sending email: {e}")
 
 
 
