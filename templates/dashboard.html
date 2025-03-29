@@ -143,7 +143,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No items available in this category.</p>
+                <p>No items available in {{category}}.</p>
             {% endif %}
         </div>
         <button class="carousel-btn right" onclick="scrollCarousel('{{ category|replace(' ', '_') }}', 'right')">&#10095;</button>

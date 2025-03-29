@@ -1131,63 +1131,71 @@ def send_cancellation_email(vendor_email, order):
 
 @app.route('/wallet', methods=['GET'])
 def wallet_dashboard():
-    if 'user_id' not in session and 'rider_id' not in session:
-        flash('Please log in to access your wallet.', 'danger')
-        return redirect(url_for('login'))
+    if 'rider_id' in session:  # ✅ Prioritize rider_id if present
+        rider = db.session.get(Rider_kyc, session['rider_id'])
+        if not rider:
+            flash('Rider account not found.', 'danger')
+            return redirect(url_for('logout'))
 
-    user = db.session.get(User, session.get('user_id'))
-    rider = db.session.get(Rider_kyc, session.get('rider_id'))
+        transactions = Transaction.query.filter_by(rider_id=rider.id).all()
+        wallet_balance = rider.wallet_balance
 
-    if not user and not rider:
-        flash('User or Rider not found.', 'danger')
-        return redirect(url_for('logout'))
+        return render_template(
+            'wallet.html',
+            user=None,  # Rider does not need user data
+            rider=rider,
+            transactions=transactions,
+            wallet_balance=wallet_balance
+        )
 
-    # Initialize wallet balance and transactions
-    wallet_balance = 0.0
-    transactions = []
+    elif 'user_id' in session:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            flash('User account not found.', 'danger')
+            return redirect(url_for('logout'))
 
-    # Transactions for Vendors/Consumers
-    if user:
+        transactions = []
         if user.role == 'vendor':
             transactions = Transaction.query.filter_by(vendor_id=user.id).all()
         elif user.role == 'consumer':
             transactions = Transaction.query.filter_by(consumer_id=user.id).all()
+
         wallet_balance = user.wallet_balance
 
-    # Transactions for Riders
-    elif rider:
-        transactions = Transaction.query.filter_by(rider_id=rider.id).all()
-        wallet_balance = rider.wallet_balance
+        return render_template(
+            'wallet.html',
+            user=user,
+            rider=None,  # User does not need rider data
+            transactions=transactions,
+            wallet_balance=wallet_balance
+        )
 
-    return render_template(
-        'wallet.html',
-        user=user,
-        rider=rider,
-        transactions=transactions,
-        wallet_balance=wallet_balance
-    )
+    flash('Please log in to access your wallet.', 'danger')
+    return redirect(url_for('login'))
 
 
 # =================== WALLET BALANCE API ======================
 
-@app.route('/wallet/<int:user_id>', methods=['GET'])
-def wallet(user_id):
+
+
+@app.route('/api/wallet/<int:user_id>', methods=['GET'])
+def wallet_api(user_id):
     user = db.session.query(User).filter_by(id=user_id).first()
     rider = db.session.query(Rider_kyc).filter_by(id=user_id).first()
 
     if not user and not rider:
         return jsonify({"error": "User or Rider not found"}), 404
 
-    # Identify wallet balance correctly
     if user:
         wallet_balance = user.wallet_balance
-        if user.role == 'vendor':
-            transactions = db.session.query(Transaction).filter_by(vendor_id=user.id).all()
-        elif user.role == 'consumer':
-            transactions = db.session.query(Transaction).filter_by(consumer_id=user.id).all()
-    elif rider:
+        transactions = (
+            Transaction.query.filter_by(vendor_id=user.id).all()
+            if user.role == 'vendor' else
+            Transaction.query.filter_by(consumer_id=user.id).all()
+        )
+    else:  # Rider case
         wallet_balance = rider.wallet_balance
-        transactions = db.session.query(Transaction).filter_by(rider_id=rider.id).all()
+        transactions = Transaction.query.filter_by(rider_id=rider.id).all()
 
     return jsonify({
         "wallet_balance": wallet_balance,
@@ -1202,6 +1210,7 @@ def wallet(user_id):
             for t in transactions
         ]
     })
+
 
 
 
@@ -1940,36 +1949,43 @@ def add_money():
         return redirect(url_for('logout'))
 
     if request.method == 'POST':
-        amount = request.form.get('amount')
-        if not amount or not amount.isdigit() or int(amount) <= 0:
+        amount_str = request.form.get('amount')
+
+        # Validate amount input
+        try:
+            amount = float(amount_str)
+            if amount <= 0:
+                raise ValueError
+        except ValueError:
             flash('Please enter a valid amount.', 'danger')
             return redirect(url_for('add_money'))
 
-        amount = float(amount)
         upi_id = request.form.get('upi_id')
         if not upi_id:
             flash('Please enter your UPI ID.', 'danger')
             return redirect(url_for('add_money'))
 
         # Generate UPI payment link
-        upi_link = (
-            f"upi://pay?pa={upi_id}&pn={user.name}&am={amount}&cu=INR"
-        )
+        upi_link = f"upi://pay?pa={upi_id}&pn={user.name}&am={amount}&cu=INR"
 
         # Generate QR Code for UPI Payment
         qr = qrcode.make(upi_link)
         qr_path = f'static/qr_add_money_{user.id}.png'
         qr.save(qr_path)
 
-        # Add Transaction Entry (Assuming payment is successful)
+        # ✅ FIX: Do not set order_id for wallet transactions
         transaction_id = str(uuid.uuid4())  # Unique transaction ID
         new_transaction = Transaction(
-            order_id=user.id,
-            amount=amount,
+            order_id=None,  # ✅ No order associated with wallet top-ups
+            vendor_id=user.id if user.role == "vendor" else None,
+            consumer_id=user.id if user.role == "consumer" else None,
+            rider_id=None,
+            amount=amount,  # Positive for deposit
             transaction_id=transaction_id,
-            vendor_share=0.0,  
+            vendor_share=0.0,
             rider_share=0.0,
-            platform_share=0.0
+            platform_share=0.0,
+            timestamp=datetime.datetime.utcnow()
         )
 
         # Update Wallet Balance
@@ -2000,13 +2016,17 @@ def withdraw_money():
         return redirect(url_for('logout'))
 
     if request.method == 'POST':
-        amount = request.form.get('amount')
-        if not amount or not amount.isdigit() or float(amount) <= 0:
-            flash('Please enter a valid amount.', 'danger')
+        amount_str = request.form.get('amount')
+        
+        # Validate input amount
+        try:
+            amount = float(amount_str)
+            if amount <= 0:
+                raise ValueError
+        except ValueError:
+            flash('Please enter a valid withdrawal amount.', 'danger')
             return redirect(url_for('withdraw_money'))
 
-        amount = float(amount)
-        
         # Ensure sufficient balance
         if amount > user.wallet_balance:
             flash('Insufficient wallet balance.', 'danger')
@@ -2020,15 +2040,21 @@ def withdraw_money():
         # Deduct amount from wallet balance
         user.wallet_balance -= amount
 
-        # Add transaction entry
-        transaction_id = str(uuid.uuid4())  # Unique transaction ID
+        # Generate a unique withdrawal transaction ID
+        transaction_id = str(uuid.uuid4())
+
+        # Create a withdrawal transaction entry (without order_id)
         new_transaction = Transaction(
-            order_id=user.id,
-            amount=-amount,  # Negative value for withdrawal
+            order_id=None,  # ✅ No order associated with withdrawal
+            vendor_id=user.id if user.role == "vendor" else None,
+            consumer_id=user.id if user.role == "consumer" else None,
+            rider_id=None,
+            amount=-amount,  # Negative for withdrawal
             transaction_id=transaction_id,
             vendor_share=0.0,
             rider_share=0.0,
-            platform_share=0.0
+            platform_share=0.0,
+            timestamp=datetime.datetime.utcnow()  # ✅ Add timestamp
         )
 
         db.session.add(new_transaction)
@@ -2038,6 +2064,75 @@ def withdraw_money():
         return redirect(url_for('wallet_dashboard'))
 
     return render_template('withdraw_money.html', user=user)
+
+
+
+    #=================================================COMPLETE ORDER================================================
+
+
+
+@app.route('/complete_order/<string:order_id>', methods=['POST'])
+def complete_order(order_id):
+    if 'user_id' not in session:
+        flash("Please log in to complete the order.", "danger")
+        return redirect(url_for('login'))
+
+    order = db.session.get(Order, order_id)
+    if not order:
+        flash("Order not found.", "danger")
+        return redirect(url_for('dashboard'))
+
+    if order.status == "Completed":
+        flash("This order has already been completed.", "warning")
+        return redirect(url_for('dashboard'))
+
+    vendor = db.session.get(User, order.vendor_id)
+    consumer = db.session.get(User, order.consumer_id)
+    rider = db.session.query(User).filter_by(role="rider").first()  # Get any available rider
+
+    if not vendor or not consumer:
+        flash("Vendor or Consumer details not found.", "danger")
+        return redirect(url_for('dashboard'))
+
+    # ✅ Calculate the split
+    total_amount = order.amount
+    vendor_share = round(total_amount * 0.75, 2)
+    rider_share = round(total_amount * 0.10, 2)
+    platform_share = round(total_amount * 0.15, 2)
+
+    # ✅ Update Wallet Balances
+    vendor.wallet_balance += vendor_share
+    if rider:
+        rider.wallet_balance += rider_share
+    platform_wallet = db.session.query(User).filter_by(role="admin").first()  # Assuming an admin user
+    if platform_wallet:
+        platform_wallet.wallet_balance += platform_share
+
+    # ✅ Add Transaction Entry
+    transaction_id = str(uuid.uuid4())
+
+    new_transaction = Transaction(
+        order_id=order.id,
+        vendor_id=vendor.id,
+        consumer_id=consumer.id,
+        rider_id=rider.id if rider else None,
+        vendor_share=vendor_share,
+        rider_share=rider_share,
+        platform_share=platform_share,
+        amount=total_amount,
+        transaction_id=transaction_id,
+        timestamp=datetime.datetime.utcnow()
+    )
+
+    # ✅ Mark Order as Completed
+    order.status = "Completed"
+
+    db.session.add(new_transaction)
+    db.session.commit()
+
+    flash("Order completed successfully! Payment has been processed.", "success")
+    return redirect(url_for('wallet_dashboard'))
+
 
 
 
