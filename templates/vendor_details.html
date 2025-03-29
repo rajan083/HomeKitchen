@@ -8,35 +8,166 @@
     <img src="{{ url_for('static', filename=vendor.profile_image if vendor.profile_image else 'images/default-user.jpg') }}" alt="Vendor Image">
     <div class="user-details" style="font-weight: bold;">
         <h1 style="color: #000000; margin-bottom: -5px;">{{ vendor.name }}</h1>
-        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/email.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 15px;"><p style="font-size: 16px; margin-bottom:-20px; color: #000000;">{{ vendor.email }}</p></div><br>
-        <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/phone.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 10px;"><p style="font-size: 14px; color: #000000; margin-bottom: 40px; ">{{ vendor.phone }}</p></div>
+        <div style="display: inline-flex;">
+            <img src="{{url_for('static', filename='images/email.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 15px;">
+            <p style="font-size: 16px; margin-bottom:-20px; color: #000000;">{{ vendor.email }}</p>
+        </div><br>
+        <div style="display: inline-flex;">
+            <img src="{{url_for('static', filename='images/phone.png')}}" style="width: 20px; height: 20px; margin-left: 8px; margin-top: 10px;">
+            <p style="font-size: 14px; color: #000000; margin-bottom: 40px;">{{ vendor.phone }}</p>
+        </div>
     </div>
-
 </div>
 
 <h2>Items Listed by {{ vendor.name }}</h2>
 
-<div class="item-container">
-    {% if items %}
+{% if items %}
+<div class="carousel-container" style="margin: 30px auto; position: relative; overflow: hidden; max-width: 100vw;">
+    <button class="carousel-btn left" onclick="moveCarousel('vendor-carousel', -1)">&#10094;</button>
+    <div class="item-carousel" id="vendor-carousel" style="display: flex; transition: transform 0.5s ease-in-out; width: max-content;">
         {% for item in items %}
-            <div class="additem-item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
-                <a href="{{ url_for('item_details', item_id=item.id) }}">
-                    <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
-                </a>
-                <div class="item-details">
-                    <h1 style="font-size: 56px;">{{ item.name }}</h1>    
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>₹</p><h1 style="font-size: 42px; margin-top:-10px;">{{ item.amount }}</h1></div><br>
-                    <div style="display: inline-flex; margin-right: 20px;"><img src="{{url_for('static', filename='images/chef-hat.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.seller.name }}</p></div>
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/grocery.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p>{{ item.stock }}</p></div><br>
-                    <div style="display: inline-flex; margin-right: 20px;"><img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;"><p style="margin-top:-0.1px;">{{ item.type }}</p></div>
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/location.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="margin-top:-0.1px;">{{ item.region }}</p></div>  
-                    <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/ingredient.png')}}" style="width: 20px; height: 20px; margin-right: 8px;"><p style="font-weight: bold;">{{item.context}}</p></div>  
+        <div class="additem-item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}'); min-width: 300px; margin: 0 10px;">
+            <a href="{{ url_for('item_details', item_id=item.id) }}">
+                <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
+            </a>
+            <div class="item-details">
+                <h1 style="font-size: 56px;">{{ item.name }}</h1>    
+                <div style="display: inline-flex;">
+                    <img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-right: 8px;">
+                    <p>₹</p><h1 style="font-size: 42px; margin-top:-10px;">{{ item.amount }}</h1>
+                </div><br>
+                <div style="display: inline-flex; margin-right: 20px;">
+                    <img src="{{url_for('static', filename='images/chef-hat.png')}}" style="width: 20px; height: 20px; margin-right: 8px;">
+                    <p>{{ item.seller.name }}</p>
                 </div>
+                <div style="display: inline-flex;">
+                    <img src="{{url_for('static', filename='images/grocery.png')}}" style="width: 20px; height: 20px; margin-right: 8px;">
+                    <p>{{ item.stock }}</p>
+                </div><br>
+                <div style="display: inline-flex; margin-right: 20px;">
+                    <img id="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Food type indicator" style="width:20px; height: 20px; margin-right: 10px;">
+                    <p style="margin-top:-0.1px;">{{ item.type }}</p>
+                </div>
+                <div style="display: inline-flex;">
+                    <img src="{{url_for('static', filename='images/location.png')}}" style="width: 20px; height: 20px; margin-right: 8px;">
+                    <p style="margin-top:-0.1px;">{{ item.region }}</p>
+                </div>  
+                <div style="display: inline-flex;">
+                    <img src="{{url_for('static', filename='images/ingredient.png')}}" style="width: 20px; height: 20px; margin-right: 8px;">
+                    <p style="font-weight: bold;">{{item.context}}</p>
+                </div>  
             </div>
+        </div>
         {% endfor %}
-    {% else %}
-        <p>No items found for this vendor.</p>
-    {% endif %}
+    </div>
+    <button class="carousel-btn right" onclick="moveCarousel('vendor-carousel', 1)">&#10095;</button>
+    <div class="carousel-indicators">
+        {% for i in range(items|length) %}
+            <span class="indicator" onclick="jumpToItem('vendor-carousel', {{ i }})" id="indicator-{{ i }}"></span>
+        {% endfor %}
+    </div>
 </div>
+{% else %}
+<div class="no-items-message">
+    <p>No items found for this vendor.</p>
+</div>
+{% endif %}
+
+<script>
+    let carouselPositions = {
+        'vendor-carousel': 0
+    };
+    
+    function moveCarousel(carouselId, direction) {
+        const carousel = document.getElementById(carouselId);
+        if (!carousel) return;
+        
+        const items = carousel.querySelectorAll(".additem-item-card");
+        const totalItems = items.length;
+        
+        if (totalItems === 0) return;
+        
+        const itemWidth = items[0].offsetWidth + 20;
+        
+        if (!carouselPositions[carouselId]) {
+            carouselPositions[carouselId] = 0;
+        }
+        
+        carouselPositions[carouselId] += direction;
+        
+        if (carouselPositions[carouselId] < 0) carouselPositions[carouselId] = totalItems - 1;
+        if (carouselPositions[carouselId] >= totalItems) carouselPositions[carouselId] = 0;
+        
+        carousel.style.transform = `translateX(${-carouselPositions[carouselId] * itemWidth}px)`;
+        
+        updateIndicators(carouselId);
+    }
+    
+    function jumpToItem(carouselId, position) {
+        const carousel = document.getElementById(carouselId);
+        if (!carousel) return;
+        
+        const items = carousel.querySelectorAll(".additem-item-card");
+        const totalItems = items.length;
+        
+        if (totalItems === 0 || position < 0 || position >= totalItems) return;
+        
+        const itemWidth = items[0].offsetWidth + 20;
+        
+        carouselPositions[carouselId] = position;
+        
+        carousel.style.transform = `translateX(${-position * itemWidth}px)`;
+        
+        updateIndicators(carouselId);
+    }
+    
+    function updateIndicators(carouselId) {
+        const indicators = document.querySelectorAll('.indicator');
+        indicators.forEach((indicator, index) => {
+            if (index === carouselPositions[carouselId]) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        for (const carouselId in carouselPositions) {
+            updateIndicators(carouselId);
+        }
+    });
+</script>
+
+<style>
+    .carousel-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        width: 80vw;
+        max-width: 900px;
+        overflow: hidden;
+        padding: 30px;
+    }
+
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        z-index: 100;
+        transition: background 0.3s ease;
+    }
+
+    .carousel-btn.left { left: 10px; }
+    .carousel-btn.right { right: 10px; }
+    .indicator { width: 10px; height: 10px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; cursor: pointer; }
+    .indicator.active { background: white; }
+</style>
 
 {% endblock content %}
