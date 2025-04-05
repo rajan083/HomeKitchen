@@ -1225,10 +1225,39 @@ def my_orders():
         return redirect(url_for("login"))
 
     user_email = session["user_email"]
-    orders = Order.query.filter_by(user_email=user_email).order_by(Order.created_at.desc()).all()
+    
+    # Get orders with vendor information
+    orders_list = []
+    raw_orders = Order.query.filter_by(user_email=user_email).order_by(Order.created_at.desc()).all()
+    
+    for order in raw_orders:
+        # Get vendor information
+        vendor = User.query.get(order.vendor_id)
+        
+        # Try to find an item with the same name to get its image
+        item = Item.query.filter_by(name=order.item_name).first()
+        
+        # Default image if no item found
+        image_url = "images/default-food.jpg"
+        if item:
+            image_url = item.image_url
+            
+        # Create order data dictionary
+        order_data = {
+            'id': order.id,
+            'item_name': order.item_name,
+            'amount': order.amount,
+            'status': order.status,
+            'created_at': order.created_at,
+            'upi_link': order.upi_link,
+            'image_url': image_url,
+            'vendor_name': vendor.name if vendor else "Unknown Vendor",
+            'shop_name': vendor.business_name if vendor and vendor.business_name else "Home Kitchen"
+        }
+        
+        orders_list.append(order_data)
 
-    return render_template("my_orders.html", orders=orders)
-
+    return render_template("my_orders.html", orders=orders_list)
 
 
 #=================================================WELCOME MAIL================================================

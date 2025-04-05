@@ -11,11 +11,16 @@
                     <div class="payment-card">
                         <li>
                             <p class="status-label">{{ order.status }}</p>
-                            <h1 style="font-size: 42px; margin-top: 15px;">{{ order.item_name }}</h1>    
+                            <img src="{{ url_for('static', filename=order.image_url) }}" alt="Item Image">
+                            <h1 style="font-size: 42px; margin-top: 15px;">{{ order.item_name }}</h1>
+                            <div class="order-details">
+                                <p><strong>Ordered on:</strong> {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</p>
+                                <p><strong>From:</strong> {{ order.vendor_name }} ({{ order.shop_name }})</p>
+                            </div>
                             <div style="display: inline-flex;"><img src="{{url_for('static', filename='images/price-tag.png')}}" style="width: 20px; height: 20px; margin-left: 20px; margin-top:-5px;"><p style="margin-top: -10px;">₹</p><h1 style="font-size: 28px; margin-top:-10px;">{{ "%.2f"|format(order.amount) }}</h1></div><br>                
                             <div style="display: flex; flex: 1; flex-wrap: wrap;">
                                 <a href="{{ order.upi_link }}" target="_blank"><button type="submit" class="paymentpage-btn" style="min-width: 100px; height: 50px;">Pay Now</button></a> <br>
-                                <a href="{{ url_for('payment_page', order_id= order.id) }}" target="_blank"><button type="submit" class="paymentpage-btn" style="min-width: 100px; height: 50px;">To order page</button></a> <br>
+                                <a href="{{ url_for('payment_page', order_id=order.id) }}" target="_blank"><button type="submit" class="paymentpage-btn" style="min-width: 100px; height: 50px;">To order page</button></a> <br>
                                 <form action="{{ url_for('confirm_payment', order_id=order.id) }}" method="POST">
                                     <button class="paymentpage-btn" type="submit" style="min-width: 100px; height: 50px;">Confirm Payment</button>
                                 </form>

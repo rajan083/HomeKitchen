@@ -24,41 +24,47 @@
             <button class="order-btn" type="submit">Order Now</button>
         </form>
         
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <form action="{{ url_for('like_item', item_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
-                <h2 style="margin: 0;">{{ item.likes }}</h2>
-                <button class="reaction-btn" type="submit">
-                    <img src="{{ url_for('static', filename='images/like.png') }}" style="width: 30px; height: 30px; margin-left: -12px;">
-                </button>
-            </form>
-        
-            <form action="{{ url_for('dislike_item', item_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
-                <h2 style="margin: 0;">{{ item.dislikes }}</h2>
-                <button class="reaction-btn" type="submit">
-                    <img src="{{ url_for('static', filename='images/dislike.png') }}" style="width: 30px; height: 30px; margin-left: -12px;">
-                </button>
-            </form>
+
+                <!-- Like-Dislike Section -->
+
+        <div style="left: -260px; position: relative; display: flex; align-items: center;">"
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <form action="{{ url_for('like_item', item_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
+                    <h2 style="margin: 0;">{{ item.likes }}</h2>
+                    <button class="reaction-btn" type="submit">
+                        <img src="{{ url_for('static', filename='images/like.png') }}" style="width: 30px; height: 30px; margin-left: -12px;">
+                    </button>
+                </form>
+            
+                <form action="{{ url_for('dislike_item', item_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
+                    <h2 style="margin: 0;">{{ item.dislikes }}</h2>
+                    <button class="reaction-btn" type="submit">
+                        <img src="{{ url_for('static', filename='images/dislike.png') }}" style="width: 30px; height: 30px; margin-left: -12px;">
+                    </button>
+                </form>
+            </div>
         </div>
         
         {% endif %}
     
         <!-- Comments Section -->
-        <h2>Comments</h2>
         <div class="comments-section">
             {% if comments %}
-                {% for comment in comments %}
+                {% for comment in comments|reverse %}
                     <div class="comment">
-                        <div  style="display: inline-flex;">
-                            <p style="color: #000000; font-size: 16px; margin-right: 8px;">{{ comment.user.name if comment.user else 'Unknown User' }}:</p> 
-                            <p style="font-weight: bold; font-size: 16px;">{{ comment.text }}</p>
+                        <div style="display: flex; flex-direction: column;">
+                            <p style="color: #000000; font-size: 16px; margin-bottom: 4px;">
+                                <strong>{{ comment.user.name if comment.user else 'Unknown User' }}</strong>: {{ comment.text }}
+                            </p>
+                            <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
                         </div>
-                        <small>{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
                     </div>
                 {% endfor %}
             {% else %}
                 <p>No comments yet. Be the first to comment!</p>
             {% endif %}
         </div>
+        
     
         <!-- Add Comment Form -->
         <form method="POST" action="{{ url_for('comment_item', item_id=item.id) }}" style="display: flex; flex-wrap: wrap; margin-top: 20px;">
