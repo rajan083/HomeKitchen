@@ -766,12 +766,9 @@ nav ul li a:active {
 
 .item-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 50px; /* Existing gap between rows and columns */
-    max-height: 600px;
+    gap: 50px;
     margin: 20px 150px;
     overflow: hidden;
-    border-radius: 10px;
 }
 
 .item-card {
@@ -1666,101 +1663,115 @@ footer {
     z-index: 10;
 }
 
-.profile-container{
+.profile-container {
     display: flex;
-    margin: 10px;
+    margin: 20px;
     padding: 50px;
-    justify-content: center;
     gap: 20px;
 }
-.data{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 50px;
-}
-.cred{
-    margin-top: 100px;
-    display: flex;
-    flex-direction: column;
-    gap: 100px;
-}
-.unchangeable, .changeable{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 100px;
 
-}
-.sub-change{
+.without-lc-card {
+    border: 2px solid #000;
+    width: 70%;
+    height: 500px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.address{
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    margin-top: 85px;
-}
-.address input, .changeable input,
-.unchangeable input, .sub-change input{
-    font-weight: bold;
-    transition: 
-        transform 0.3s ease, 
-        box-shadow 0.3s ease, 
-        z-index 0.3s ease;
+    gap: 80px;
+    flex-wrap: wrap;
+    padding: 20px 5px;
+    left: -30px;
     position: relative;
-    z-index: 1;
-}
-.map{
-    transition: 
-        transform 0.3s ease, 
-        box-shadow 0.3s ease, 
-        z-index 0.3s ease;
-    position: relative;
-    z-index: 1;
-}
-.map:hover{
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 10;   
+    border-radius: 12px;
 }
 
-.unchangeable input:hover, .unchangeable input:active,
-.changeable input:hover, .changeable input:active,
-.sub-change input:hover, .sub-change input:active,
-.address input:hover, .address input:active{
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 10;
+.location-card {
+    border: 2px solid #000;
+    position: relative;
+    top: -545px;
+    width: 30%;
+    height: 545px;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 10px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    justify-self: end;
+
 }
-.data input{
-    width: 100%;
-    height: auto;
-    border: 0.5px #000000 solid;
-    border-radius: 5px;
-    padding: 6px 15px;
+.profile-data{
+    position: relative;
+    right: -80px;
 }
-.profile button{
-    font-weight: bold;
-    width: 20%;
+
+.profile-image-name-container{
+    position: relative;
+    top: -100px;
+    right: -30px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.profile-data{
+    position: relative;
+    width: 30%;
+}
+.profile-data input{
+    margin: 4px;
+    padding: 2px 8px;
+    width: 80%;
     height: 35px;
-    border: 0.2px solid #958585;
+    border: 2px solid #000;
     border-radius: 8px;
-    transition: 
-        transform 0.3s ease, 
-        box-shadow 0.3s ease, 
-        z-index 0.3s ease;
+    font-weight: bold;
+}
+
+.location-card-data {
+    width: 340px;
     position: relative;
-    z-index: 1;
+    top: -70px;
+    left: -5px;
+    padding: 30px;
+    background: #fff;
+    border-radius: 30px 30px 2px 2px;
+    border: 1px solid #000;
 }
-.profile button:hover, .profile button:active{
-    background-color: #d9d9d9;
-    border: 0.2px solid #000000;
-    color: #000000;
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 10;
+
+.location-card-data input.lat-lng-input {
+    background: transparent;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    width: 200px;
+    outline: none;
+    cursor: text;
 }
+
+
+.profile-submit {
+    border: none;
+    background: none;
+    transform: none !important;
+    box-shadow: none !important;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-submit:hover,
+.profile-submit:active,
+.profile-submit:focus {
+    border: none;
+    background: none;
+    transform: none !important;
+    box-shadow: none !important;
+    outline: none;
+}
+.profile-submit img {
+    display: block;
+    transform: none;
+    box-shadow: none;
+    user-select: none;
+}
+
 
 .assigned_order{
     display: flex;
@@ -2379,4 +2390,86 @@ footer {
     transform: scale(1.05) translateY(-5px);
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
     z-index: 10;
+}
+.dropdown {
+    position: relative;
+    top: 10px;
+    display: inline-block;
+}
+
+.dropdown-button {
+    background: none;
+    color: white;
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-button:hover {
+    background: none;
+    transform: scale(1.1);
+}
+
+.dropdown-content {
+    left: -100px;
+    padding: 10px;
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+.dropdown:hover .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-content button {
+    margin: 5px;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: calc(100% - 10px);
+    text-align: left;
+    border: none;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    background: none;
+    border: 2px solid #000000;
+    transition: 
+        transform 0.2s ease, 
+        box-shadow 0.3s ease, 
+        z-index 0.3s ease,
+        border-color 0.3s ease,
+        background-color 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.dropdown-content button:hover {
+    border: 2px solid #fff;
+    background: rgba(0,0,0,0.8);
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.top-right-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 10px;
 }
