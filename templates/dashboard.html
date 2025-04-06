@@ -31,7 +31,7 @@
 
 <h2>Today's Menu</h2>
 <div class="carousel-container">
-    <button class="carousel-btn left" onclick="scrollCarousel('main', 'left')">&#10094;</button>
+    <button class="carousel-btn left" onclick="scrollCarousel_main('left')">&#10094;</button>
     <div class="carousel" id="main-carousel">
         {% if items %}
             {% for item in items %}
@@ -66,13 +66,13 @@
             <p>No items found.</p>
         {% endif %}
     </div>
-    <button class="carousel-btn right" onclick="scrollCarousel('main', 'right')">&#10095;</button>
+    <button class="carousel-btn right" onclick="scrollCarousel_main('right')">&#10095;</button>
 </div>
 <br><br><br>
 
 <h2>Most Popular Items</h2>
 <div class="carousel-container">
-    <button class="carousel-btn left" onclick="scrollCarousel('popular', 'left')">&#10094;</button>
+    <button class="carousel-btn left" onclick="scrollCarousel_popular('left')">&#10094;</button>
     <div class="carousel" id="popular-carousel">
         {% if popular_items %}
             {% for item in popular_items %}
@@ -107,7 +107,7 @@
             <p>No popular items found.</p>
         {% endif %}
     </div>
-    <button class="carousel-btn right" onclick="scrollCarousel('popular', 'right')">&#10095;</button>
+    <button class="carousel-btn right" onclick="scrollCarousel_popular('right')">&#10095;</button>
 </div>
 
 
@@ -115,7 +115,7 @@
 {% for category, items in categorized_items.items() %}
     <h3>{{ category }}</h3>
     <div class="carousel-container">
-        <button class="carousel-btn left" onclick="scrollCarousel('{{ category|replace(' ', '_') }}', 'left')">&#10094;</button>
+        <button class="carousel-btn left" onclick="scrollCarousel_{{ category|replace(' ', '_') }}('left')">&#10094;</button>
         <div class="carousel" id="{{ category|replace(' ', '_') }}-carousel">
             {% if items %}
                 {% for item in items %}
@@ -146,14 +146,14 @@
                 <p>No items available in {{category}}.</p>
             {% endif %}
         </div>
-        <button class="carousel-btn right" onclick="scrollCarousel('{{ category|replace(' ', '_') }}', 'right')">&#10095;</button>
+        <button class="carousel-btn right" onclick="scrollCarousel_{{ category|replace(' ', '_') }}('right')">&#10095;</button>
     </div>
 {% endfor %}
 
 
 <h2>Our Vendors</h2><br>
 <div class="carousel-container">
-    <button class="carousel-btn left" onclick="scrollCarousel('vendors', 'left')">&#10094;</button>
+    <button class="carousel-btn left" onclick="scrollCarousel_vendors('left')">&#10094;</button>
     <div class="carousel" id="vendors-carousel">
         {% for user in users %}
             {% if user.role == 'vendor' %}
@@ -178,33 +178,77 @@
             {% endif %}
         {% endfor %}
     </div>
-    <button class="carousel-btn right" onclick="scrollCarousel('vendors', 'right')">&#10095;</button>
+    <button class="carousel-btn right" onclick="scrollCarousel_vendors('right')">&#10095;</button>
 </div>
 
 <script>
-    function scrollCarousel(carouselId, direction) {
-        let carousel;
-        
-        if (carouselId && direction) {
-            // For specific carousel
-            carousel = document.getElementById(carouselId + '-carousel');
-        } else if (!direction) {
-            // Old-style call with just direction
-            direction = carouselId;
-            carousel = document.querySelector('.carousel');
-        } else {
-            // Fallback to main carousel
-            carousel = document.querySelector('.carousel');
-        }
-        
-        const scrollAmount = 300; // Adjust based on item width
+    function initLoopingCarousel(carouselId) {
+        const carousel = document.getElementById(carouselId + '-carousel');
 
-        if (direction === 'left') {
-            carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        } else {
-            carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
+        if (!carousel) return;
+
+        const existingItems = carousel.querySelectorAll('.carousel-item');
+        if (existingItems.length < 1) return;
+
+        const itemWidth = existingItems[0].offsetWidth;
+
+        // Clear previous clones if any (prevent duplication on reload)
+        carousel.innerHTML = '';
+        existingItems.forEach(item => {
+            carousel.appendChild(item.cloneNode(true));
+        });
+
+        // Re-query items
+        const items = carousel.querySelectorAll('.carousel-item');
+        const firstItem = items[0].cloneNode(true);
+        const lastItem = items[items.length - 1].cloneNode(true);
+
+        // Clone logic
+        carousel.insertBefore(lastItem, items[0]); // Add clone of last item at the start
+        carousel.appendChild(firstItem); // Add clone of first item at the end
+
+        // Set initial position
+        carousel.scrollLeft = itemWidth;
+
+        // Attach scrolling logic
+        window['scrollCarousel_' + carouselId] = function (direction) {
+            const scrollAmount = itemWidth;
+
+            if (direction === 'left') {
+                carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+
+            // Looping scroll fix
+            setTimeout(() => {
+                const currentScroll = carousel.scrollLeft;
+                const maxScroll = itemWidth * (items.length + 1); // +1 for added clone
+
+                if (currentScroll <= 0) {
+                    carousel.scrollLeft = itemWidth * items.length;
+                } else if (currentScroll >= maxScroll) {
+                    carousel.scrollLeft = itemWidth;
+                }
+            }, 400); // Same as scroll animation duration
+        };
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const carousels = ['main', 'popular', 'vendors'{% for category in categorized_items %}, '{{ category|replace(' ', '_') }}'{% endfor %}];
+
+        carousels.forEach(id => {
+            initLoopingCarousel(id);
+
+            // Prevent multiple intervals
+            if (!window[`_${id}_intervalSet`]) {
+                setInterval(() => {
+                    window['scrollCarousel_' + id]('right');
+                }, 5000);
+                window[`_${id}_intervalSet`] = true;
+            }
+        });
+    });
 </script>
 
 
