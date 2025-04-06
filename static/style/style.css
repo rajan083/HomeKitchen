@@ -770,48 +770,51 @@ nav ul li a:active {
     margin: 20px 150px;
     overflow: hidden;
 }
-
 .item-card {
     margin: 10px 20px;
-    background-color: #e7c6ff;
-    padding: 30px 15px;
+    background-color: #e7c6ff; /* Fallback background if no image */
+    padding: 10px; /* Overriding previous padding for new layout */
     border-radius: 8px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: flex-end; /* Push content to bottom */
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px; /* Internal gap within card elements */
-    width: calc(250px - 40px); /* Subtract horizontal margins */
-    height: 180px;
+    gap: 10px;
+    width: 210px; /* New fixed width */
+    height: 240px; /* New fixed height */
     max-width: 300px;
+    background-size: cover; /* Background image support */
+    background-position: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
     position: relative;
     z-index: 1;
     overflow: hidden;
+    color: white; /* Ensures white text on background */
 }
 
 .item-container .item-card {
-    margin-right: 25px; /* Add space between cards */
-    margin-bottom: 25px; /* Add vertical spacing if cards wrap */
+    margin-right: 25px;
+    margin-bottom: 25px;
 }
+
+/* Optional: styling for content wrapper inside the card */
+.item-details {
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    border-radius: 0 0 8px 8px;
+    width: calc(100% + 20px);
+    padding: 6px 10px;
+    text-align: center;
+    justify-self: center;
+}
+
 
 .item-details div {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-.item-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    background: rgba(255, 255, 255, 0.1); /* Optional: Adjust opacity */
-    z-index: 0;
-    border-radius: inherit;
 }
 
 .item-card > * {
@@ -819,29 +822,6 @@ nav ul li a:active {
     z-index: 1;
 }
 
-.item-card button{
-    width: 60%;
-    margin:3px;
-    font-weight: bold;
-    height: 35px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background-color: rgba(0, 0, 0, 0.4); 
-    transition: 
-        transform 0.2s ease, 
-        box-shadow 0.3s ease, 
-        z-index 0.3s ease;
-    position: relative;
-    z-index: 1;
-}
-.item-card button:hover, button:active{
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background-color: rgba(0, 0, 0, 0.8); 
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 10;
-}
 
 .item-card:hover {
     transform: scale(1.05);
@@ -849,27 +829,11 @@ nav ul li a:active {
     z-index: 10;
 }
 
-.item-card img {
-    width: 210px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 5px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-}
-
-.item-card:hover img {
-    transform: scale(1.1); /* Slight zoom-in on the image */
-}
 
 
-.item-details {
-    flex-grow: 1;
-    color: #ddd;
-}
 .item-details h1, h2, strong {
     margin: 0;
-    color: #000000;
+    color: #fff;
 }
 .item-details h1 {
     font-size: clamp(20px, 5vw, 40px);
@@ -880,7 +844,7 @@ nav ul li a:active {
 }
 .item-details p {
     margin: 5px 0;
-    color: #000000;
+    color: #fff;
 }
 .update-form {
     display: none;

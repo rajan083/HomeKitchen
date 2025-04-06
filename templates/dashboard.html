@@ -54,30 +54,27 @@
         {% if items %}
             {% for item in items %}
                 <div class="carousel-item">
-                    <div class="item-card">
-                        <a href="{{ url_for('item_details', item_id=item.id) }}">
-                            <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image" style="border: 2px solid #fff;">
+                    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
+                        <a href="{{ url_for('item_details', item_id=item.id) }}" style="text-decoration: none; color: inherit;">
+                            <div class="item-details">
+                                <h1 style="font-size: 42px;">{{ item.name }}</h1>
+                                <div style="display: flex; align-items: center;">
+                                    <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 16px; height: 16px; margin-right: 5px;">
+                                    <p style="margin: 0;font-size: 28px;">₹{{ item.amount }}</p>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    {% set food_type = item.type.lower() %}
+                                    {% if food_type == 'veg' %}
+                                        <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Veg" style="width: 16px; height: 16px; margin-right: 5px;">
+                                    {% elif food_type == 'non-veg' %}
+                                        <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" alt="Non-Veg" style="width: 16px; height: 16px; margin-right: 5px;">
+                                    {% endif %}
+                                    <p style="margin: 0;">{{ item.type }}</p>
+                                </div>
+                            </div>
                         </a>
-                        <div class="item-details">
-                            <h1 style="font-size: 32px;">{{ item.name }}</h1>    
-                            <div style="display: inline-flex;">
-                                <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 20px; height: 20px; margin-right: 8px;">
-                                <p>₹</p><h1 style="font-size: 22px; margin-top:-10px;">{{ item.amount }}</h1>
-                            </div>
-                            <div style="display: inline-flex; align-items: center; margin-right: 20px;">
-                                {% set food_type = item.type.lower() %}
-                                {% if food_type == 'veg' %}
-                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" 
-                                        alt="Veg" style="width:20px; height: 20px; margin-right: 10px;">
-                                {% elif food_type == 'non-veg' %}
-                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" 
-                                        alt="Non-Veg" style="width:20px; height: 20px; margin-right: 10px;">
-                                {% endif %}
-                                <p style="margin: 0;">{{ item.type }}</p>
-                            </div>
-                            
-                        </div>
                     </div>
+                                        
                 </div>
             {% endfor %}
         {% else %}
@@ -95,29 +92,25 @@
         {% if popular_items %}
             {% for item in popular_items %}
                 <div class="carousel-item">
-                    <div class="item-card">
-                        <a href="{{ url_for('item_details', item_id=item.id) }}">
-                            <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image" style="border: 2px solid #fff;">
+                    <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
+                        <a href="{{ url_for('item_details', item_id=item.id) }}" style="text-decoration: none; color: inherit;">
+                            <div class="item-details">
+                                <h1 style="font-size: 42px;">{{ item.name }}</h1>
+                                <div style="display: flex; align-items: center;">
+                                    <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 16px; height: 16px; margin-right: 5px;">
+                                    <p style="margin: 0;font-size: 28px;">₹{{ item.amount }}</p>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    {% set food_type = item.type.lower() %}
+                                    {% if food_type == 'veg' %}
+                                        <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Veg" style="width: 16px; height: 16px; margin-right: 5px;">
+                                    {% elif food_type == 'non-veg' %}
+                                        <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" alt="Non-Veg" style="width: 16px; height: 16px; margin-right: 5px;">
+                                    {% endif %}
+                                    <p style="margin: 0;">{{ item.type }}</p>
+                                </div>
+                            </div>
                         </a>
-                        <div class="item-details">
-                            <h1 style="font-size: 32px;">{{ item.name }}</h1>    
-                            <div style="display: inline-flex;">
-                                <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 20px; height: 20px; margin-right: 8px;">
-                                <p>₹</p><h1 style="font-size: 22px; margin-top:-10px;">{{ item.amount }}</h1>
-                            </div>
-                            <div style="display: inline-flex; align-items: center; margin-right: 20px;">
-                                {% set food_type = item.type.lower() %}
-                                {% if food_type == 'veg' %}
-                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" 
-                                        alt="Veg" style="width:20px; height: 20px; margin-right: 10px;">
-                                {% elif food_type == 'non-veg' %}
-                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" 
-                                        alt="Non-Veg" style="width:20px; height: 20px; margin-right: 10px;">
-                                {% endif %}
-                                <p style="margin: 0;">{{ item.type }}</p>
-                            </div>
-                            
-                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -138,25 +131,25 @@
             {% if items %}
                 {% for item in items %}
                     <div class="carousel-item">
-                        <div class="item-card">
-                            <a href="{{ url_for('item_details', item_id=item.id) }}">
-                                <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image" style="border: 2px solid #fff;">
+                        <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
+                            <a href="{{ url_for('item_details', item_id=item.id) }}" style="text-decoration: none; color: inherit;">
+                                <div class="item-details">
+                                    <h1 style="font-size: 42px;">{{ item.name }}</h1>
+                                    <div style="display: flex; align-items: center;">
+                                        <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 16px; height: 16px; margin-right: 5px;">
+                                        <p style="margin: 0;font-size: 28px;">₹{{ item.amount }}</p>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        {% set food_type = item.type.lower() %}
+                                        {% if food_type == 'veg' %}
+                                            <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" alt="Veg" style="width: 16px; height: 16px; margin-right: 5px;">
+                                        {% elif food_type == 'non-veg' %}
+                                            <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" alt="Non-Veg" style="width: 16px; height: 16px; margin-right: 5px;">
+                                        {% endif %}
+                                        <p style="margin: 0;">{{ item.type }}</p>
+                                    </div>
+                                </div>
                             </a>
-                            <div class="item-details">
-                                <h1 >{{ item.name }}</h1>    
-                                <p>₹{{ item.amount }}</p>
-                            </div>
-                            <div style="display: inline-flex; align-items: center; margin-right: 20px;">
-                                {% set food_type = item.type.lower() %}
-                                {% if food_type == 'veg' %}
-                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/veg.png') }}" 
-                                        alt="Veg" style="width:20px; height: 20px; margin-right: 10px;">
-                                {% elif food_type == 'non-veg' %}
-                                    <img class="foodTypeImage" src="{{ url_for('static', filename='images/non-veg.png') }}" 
-                                        alt="Non-Veg" style="width:20px; height: 20px; margin-right: 10px;">
-                                {% endif %}
-                                <p style="margin: 0;">{{ item.type }}</p>
-                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -200,35 +193,15 @@
 </div>
 
 <script>
-    function initLoopingCarousel(carouselId) {
+    function initCarousel(carouselId) {
         const carousel = document.getElementById(carouselId + '-carousel');
-
         if (!carousel) return;
 
-        const existingItems = carousel.querySelectorAll('.carousel-item');
-        if (existingItems.length < 1) return;
+        const item = carousel.querySelector('.carousel-item');
+        if (!item) return;
 
-        const itemWidth = existingItems[0].offsetWidth;
+        const itemWidth = item.offsetWidth;
 
-        // Clear previous clones if any (prevent duplication on reload)
-        carousel.innerHTML = '';
-        existingItems.forEach(item => {
-            carousel.appendChild(item.cloneNode(true));
-        });
-
-        // Re-query items
-        const items = carousel.querySelectorAll('.carousel-item');
-        const firstItem = items[0].cloneNode(true);
-        const lastItem = items[items.length - 1].cloneNode(true);
-
-        // Clone logic
-        carousel.insertBefore(lastItem, items[0]); // Add clone of last item at the start
-        carousel.appendChild(firstItem); // Add clone of first item at the end
-
-        // Set initial position
-        carousel.scrollLeft = itemWidth;
-
-        // Attach scrolling logic
         window['scrollCarousel_' + carouselId] = function (direction) {
             const scrollAmount = itemWidth;
 
@@ -237,18 +210,6 @@
             } else {
                 carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
             }
-
-            // Looping scroll fix
-            setTimeout(() => {
-                const currentScroll = carousel.scrollLeft;
-                const maxScroll = itemWidth * (items.length + 1); // +1 for added clone
-
-                if (currentScroll <= 0) {
-                    carousel.scrollLeft = itemWidth * items.length;
-                } else if (currentScroll >= maxScroll) {
-                    carousel.scrollLeft = itemWidth;
-                }
-            }, 400); // Same as scroll animation duration
         };
     }
 
@@ -256,13 +217,12 @@
         const carousels = ['main', 'popular', 'vendors'{% for category in categorized_items %}, '{{ category|replace(' ', '_') }}'{% endfor %}];
 
         carousels.forEach(id => {
-            initLoopingCarousel(id);
+            initCarousel(id);
 
-            // Prevent multiple intervals
             if (!window[`_${id}_intervalSet`]) {
                 setInterval(() => {
                     window['scrollCarousel_' + id]('right');
-                }, 5000);
+                }, 3000);
                 window[`_${id}_intervalSet`] = true;
             }
         });
