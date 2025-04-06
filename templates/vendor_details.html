@@ -77,50 +77,50 @@
     let carouselPositions = {
         'vendor-carousel': 0
     };
-    
+
     function moveCarousel(carouselId, direction) {
         const carousel = document.getElementById(carouselId);
         if (!carousel) return;
-        
+
         const items = carousel.querySelectorAll(".additem-item-card");
         const totalItems = items.length;
-        
+
         if (totalItems === 0) return;
-        
+
         const itemWidth = items[0].offsetWidth + 20;
-        
+
         if (!carouselPositions[carouselId]) {
             carouselPositions[carouselId] = 0;
         }
-        
+
         carouselPositions[carouselId] += direction;
-        
+
         if (carouselPositions[carouselId] < 0) carouselPositions[carouselId] = totalItems - 1;
         if (carouselPositions[carouselId] >= totalItems) carouselPositions[carouselId] = 0;
-        
+
         carousel.style.transform = `translateX(${-carouselPositions[carouselId] * itemWidth}px)`;
-        
+
         updateIndicators(carouselId);
     }
-    
+
     function jumpToItem(carouselId, position) {
         const carousel = document.getElementById(carouselId);
         if (!carousel) return;
-        
+
         const items = carousel.querySelectorAll(".additem-item-card");
         const totalItems = items.length;
-        
+
         if (totalItems === 0 || position < 0 || position >= totalItems) return;
-        
+
         const itemWidth = items[0].offsetWidth + 20;
-        
+
         carouselPositions[carouselId] = position;
-        
+
         carousel.style.transform = `translateX(${-position * itemWidth}px)`;
-        
+
         updateIndicators(carouselId);
     }
-    
+
     function updateIndicators(carouselId) {
         const indicators = document.querySelectorAll('.indicator');
         indicators.forEach((indicator, index) => {
@@ -131,13 +131,21 @@
             }
         });
     }
-    
-    document.addEventListener('DOMContentLoaded', function() {
+
+    document.addEventListener('DOMContentLoaded', function () {
         for (const carouselId in carouselPositions) {
             updateIndicators(carouselId);
         }
+
+        // Start auto scroll (every 5 seconds)
+        setInterval(() => {
+            moveCarousel('vendor-carousel', 1);
+        }, 5000);
     });
+
+    
 </script>
+
 
 <style>
     .carousel-container {

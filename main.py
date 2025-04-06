@@ -1252,7 +1252,8 @@ def my_orders():
             'upi_link': order.upi_link,
             'image_url': image_url,
             'vendor_name': vendor.name if vendor else "Unknown Vendor",
-            'shop_name': vendor.business_name if vendor and vendor.business_name else "Home Kitchen"
+            'shop_name': vendor.business_name if vendor and vendor.business_name else "Home Kitchen",
+            'vendor_id': order.vendor_id
         }
         
         orders_list.append(order_data)

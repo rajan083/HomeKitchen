@@ -126,59 +126,54 @@
     let carouselPositions = {
         'item-carousel': 0
     };
-    
+
+    let carouselInterval; // For storing the interval reference
+
     function moveCarousel(carouselId, direction) {
         const carousel = document.getElementById(carouselId);
         if (!carousel) return;
-        
+
         const items = carousel.querySelectorAll(".additem-item-card");
         const totalItems = items.length;
-        
+
         if (totalItems === 0) return;
-        
+
         const itemWidth = items[0].offsetWidth + 20;
-        
-        // Update position for this specific carousel
+
+        // Update position
         if (!carouselPositions[carouselId]) {
             carouselPositions[carouselId] = 0;
         }
-        
+
         carouselPositions[carouselId] += direction;
-        
-        // Handle wrapping
+
+        // Wrap around
         if (carouselPositions[carouselId] < 0) carouselPositions[carouselId] = totalItems - 1;
         if (carouselPositions[carouselId] >= totalItems) carouselPositions[carouselId] = 0;
-        
-        // Apply transform
+
         carousel.style.transform = `translateX(${-carouselPositions[carouselId] * itemWidth}px)`;
-        
-        // Update indicators
+
         updateIndicators(carouselId);
     }
-    
+
     function jumpToItem(carouselId, position) {
         const carousel = document.getElementById(carouselId);
         if (!carousel) return;
-        
+
         const items = carousel.querySelectorAll(".additem-item-card");
         const totalItems = items.length;
-        
+
         if (totalItems === 0 || position < 0 || position >= totalItems) return;
-        
+
         const itemWidth = items[0].offsetWidth + 20;
-        
-        // Set the position directly
+
         carouselPositions[carouselId] = position;
-        
-        // Apply transform
         carousel.style.transform = `translateX(${-position * itemWidth}px)`;
-        
-        // Update indicators
+
         updateIndicators(carouselId);
     }
-    
+
     function updateIndicators(carouselId) {
-        // Update all indicators to show current position
         const indicators = document.querySelectorAll('.indicator');
         indicators.forEach((indicator, index) => {
             if (index === carouselPositions[carouselId]) {
@@ -188,23 +183,41 @@
             }
         });
     }
-    
-    // Initialize indicators on page load
-    document.addEventListener('DOMContentLoaded', function() {
+
+    function startAutoScroll() {
+        carouselInterval = setInterval(() => {
+            moveCarousel('item-carousel', 1);
+        }, 5000); // every 5 seconds
+    }
+
+    function stopAutoScroll() {
+        clearInterval(carouselInterval);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
         for (const carouselId in carouselPositions) {
             updateIndicators(carouselId);
         }
-        
-        // Add keyboard navigation
-        document.addEventListener('keydown', function(e) {
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowLeft') {
                 moveCarousel('item-carousel', -1);
             } else if (e.key === 'ArrowRight') {
                 moveCarousel('item-carousel', 1);
             }
         });
+
+        // Start auto scroll
+        startAutoScroll();
+
+        // Pause on hover
+        const carousel = document.getElementById('item-carousel');
+        if (carousel) {
+            carousel.addEventListener('mouseover', stopAutoScroll);
+            carousel.addEventListener('mouseout', startAutoScroll);
+        }
     });
-  
 </script>
 
 <style>
