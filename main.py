@@ -425,8 +425,6 @@ def login():
 
 
 
-
-
 #=================================================LOGOUT================================================
 
 
@@ -1795,8 +1793,35 @@ def admin_login():
 
     
 #=================================================ASSIGN ORDERS========================================================= 
-    
-    
+
+
+                    #================ORDER-ASSIGNMENT NOTIFICATION===================
+
+def send_rider_assignment_notification(order_id, rider_email, rider_name):
+    try:
+        email_msg = Message('New Delivery Assigned!', sender=app.config['MAIL_USERNAME'], recipients=[rider_email])
+        email_msg.body = f"""
+Hello {rider_name},
+
+You have been assigned a new delivery.
+
+Delivery Details:
+- Order ID: {order_id}
+
+Please check your dashboard for delivery details and pickup location.
+
+Best regards,  
+Your HomeKitchen Team
+        """
+        mail.send(email_msg)
+
+        # You can add SMS logic here if needed later.
+        return True
+    except Exception as e:
+        print(f"Rider notification error: {str(e)}")
+        return False
+
+                        #===================ORDER-ASSIGNMENT===================
         
 @app.route('/assign_order', methods=['GET', 'POST'])
 def assign_order():
@@ -1805,26 +1830,31 @@ def assign_order():
         rider_id = request.form.get('rider_id')
         
         order = db.session.get(Order, order_id)
-        rider= db.session.get(Rider_kyc, rider_id)
-        
+        rider = db.session.get(Rider_kyc, rider_id)
+
         if not order:
             flash("Order not found!", "danger")
             return redirect(url_for('assign_order'))
+
         if not rider or rider.role != 'rider':
             flash("Invalid rider selected!", "danger")
             return redirect(url_for('assign_order'))
-        
+
         order.rider_id = rider_id
         order.status = "Assigned to Rider"
         db.session.commit()
-        
-        flash(f"Order {order.id} has been assigned to {rider.name}!", "success")
+
+        # Send rider notification
+        send_rider_assignment_notification(order_id=order.id, rider_email=rider.email, rider_name=rider.name)
+
+        flash(f"Order {order.id} has been assigned to {rider.name} and a notification has been sent!", "success")
         return redirect(url_for('additems'))
 
     else:
         orders = Order.query.filter(Order.rider_id == None).all()
         riders = Rider_kyc.query.filter_by(role='rider').all()
         return render_template('assign_order.html', orders=orders, riders=riders)
+
 
 
 

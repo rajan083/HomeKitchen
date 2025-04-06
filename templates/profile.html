@@ -4,20 +4,36 @@
 
 {% block content %}
 
-<div class="top-right-buttons">
-    {% if user.role == 'vendor' %}
-        <a href="{{ url_for('additems') }}"><button>Add Items</button></a>
-    {% elif user.role == 'consumer' %}
-        <a href="{{ url_for('my_orders') }}"><button>My Orders</button></a>
-    {% elif user.role =='rider' %}
-        <a href="{{ url_for('rider_orders', rider_id=user.id)}}"><button>Assigned Orders</button></a>
-    {% endif %}
-    <a href="{{ url_for('logout')}}"><button>Logout</button></a>
-    <a href="{{ url_for('wallet_dashboard')}}"><button>Wallet</button></a>
-    <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible!');">
-        <button type="submit" class="btn btn-danger">Delete My Account</button>
-    </form>
+<div class="top-right-dropdown">
+    <div class="dropdown">
+        <img src="{{ url_for('static', filename='images/option.png') }}" alt="DropMenu" class="dropdown-button" style="width:25px; height:25px;">
+        <div class="dropdown-content">
+            {% if user.role == 'vendor' %}
+                <button onclick="location.href='{{ url_for('additems') }}'">Add Items</button>
+            {% elif user.role == 'consumer' %}
+                <button onclick="location.href='{{ url_for('my_orders') }}'">My Orders</button>
+            {% elif user.role == 'rider' %}
+                <button onclick="location.href='{{ url_for('rider_orders', rider_id=user.id) }}'">Assigned Orders</button>
+            {% endif %}
+            <button onclick="location.href='{{ url_for('wallet_dashboard') }}'">Wallet</button>
+            <button onclick="location.href='{{ url_for('logout') }}'">Logout</button>
+            <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible!');">
+                <button type="submit" class="btn btn-danger" style="width: 100%; text-align: left;">Delete My Account</button>
+            </form>
+        </div>
+    </div>
 </div>
+<style>
+    .top-right-dropdown {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+    }
+    .dropdown-content {
+        left: -150px;
+    }
+</style>
 <div class="profile-page" style="font-weight: bold;">
     <div class="profile-container">
         <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">

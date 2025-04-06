@@ -4,15 +4,33 @@
 
 {% block content %}
 
-<div class="top-right-buttons">
-    {% if session.get('user_role') == 'vendor' %}
-        <a href="{{ url_for('additems') }}"><button>Add Item</button></a>
-        <a href="{{ url_for('terms') }}"><button>Terms</button></a>
-    {% elif session.get('user_role') == 'consumer' %}
-        <a href="{{ url_for('my_orders') }}"><button>My Orders</button></a>
-    {% endif %}
-    <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+<div class="top-right-dropdown">
+    <div class="dropdown">
+        <img src="{{ url_for('static', filename='images/option.png') }}" alt="DropMenu" class="dropdown-button" style="width:25px; height: 25px;">
+        <div class="dropdown-content">
+            {% if session.get('user_role') == 'vendor' %}
+                <button onclick="location.href='{{ url_for('additems') }}'">Add Item</button>
+                <button onclick="location.href='{{ url_for('terms') }}'">Terms</button>
+            {% elif session.get('user_role') == 'consumer' %}
+                <button onclick="location.href='{{ url_for('my_orders') }}'">My Orders</button>
+            {% endif %}
+            <button onclick="location.href='{{ url_for('logout') }}'">Logout</button>
+        </div>
+    </div>
 </div>
+<style>
+    .top-right-dropdown {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        z-index: 1001;
+    }
+    .dropdown-content {
+        left: -150px;
+    }
+</style>
+
+
 
 <div class="search-container">
     <form method="GET" action="{{ url_for('dashboard') }}" role="search">
