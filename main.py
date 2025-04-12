@@ -703,29 +703,56 @@ def purchase_item(item_id):
 def dashboard():
     search_query = request.args.get('search', '').strip()
     selected_region = request.args.get('region', '').strip()
+    
+    # Base query joining Item and User tables
     query = Item.query.join(User)
+    
+    # Apply search filter if provided
     if search_query:
         query = query.filter(
             (Item.name.ilike(f"%{search_query}%")) |
             (Item.context.ilike(f"%{search_query}%")) |
             (User.name.ilike(f"%{search_query}%"))
         )
+    
+    # Apply region filter if provided
     if selected_region:
         if selected_region == "Others":
             query = query.filter(or_(Item.region.is_(None), Item.region == ""))
         else:
             query = query.filter(Item.region == selected_region)
+    
+    # Get filtered items
     items = query.all()
+    
+    # Get popular items based on order count
     popular_items = Item.query.order_by(Item.order_count.desc()).limit(5).all()
+    
+    # Define categories and get items for each category
     categories = ["Breakfast", "Lunch", "Dinner", "Desserts", "Drinks"]
-    categorized_items = {
-        category: Item.query.filter(Item.categories == category).order_by(Item.order_count.desc()).limit(5).all()
-        for category in categories
-    }
+    categorized_items = {}
+    
+    # Ensure we get items for each category
+    for category in categories:
+        # Fix: Use Item.categories.ilike instead of equality if needed
+        # This handles potential case insensitivity issues
+        category_items = Item.query.filter(
+            Item.categories.ilike(f"%{category}%")
+        ).order_by(Item.order_count.desc()).limit(5).all()
+        
+        categorized_items[category] = category_items
+    
+    # Get all vendors
     users = User.query.filter_by(role='vendor').all()
+    
+    # Get unique regions for the dropdown
     unique_regions = db.session.query(Item.region).distinct().all()
-    unique_regions = [r[0] for r in unique_regions if r[0]]
-
+    unique_regions = [r[0] for r in unique_regions if r[0]]  # Filter out None/empty
+    
+    # Make sure "Others" is included as an option if it's used in filtering
+    if "Others" not in unique_regions:
+        unique_regions.append("Others")
+    
     return render_template(
         'dashboard.html',
         items=items,
@@ -736,7 +763,6 @@ def dashboard():
         search_query=search_query,
         selected_region=selected_region
     )
-
 
 #=================================================VENDOR DETAIL PAGE================================================
 

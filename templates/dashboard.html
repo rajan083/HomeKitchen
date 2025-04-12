@@ -122,22 +122,26 @@
 </div>
 
 
+
 <h2>Categories</h2>
+<div class="category-buttons">
+    {% for category in categorized_items %}
+        <button class="category-toggle-btn" data-category="{{ category|replace(' ', '_') }}">{{ category }}</button>
+    {% endfor %}
+</div>
 {% for category, items in categorized_items.items() %}
-    <h3>{{ category }}</h3>
-    <div class="carousel-container">
-        <button class="carousel-btn left" onclick="scrollCarousel_{{ category|replace(' ', '_') }}('left')">&#10094;</button>
-        <div class="carousel" id="{{ category|replace(' ', '_') }}-carousel">
-            {% if items %}
+    <div class="category-items" id="{{ category|replace(' ', '_') }}" style="display: none;">
+        {% if items %}
+            <div class="items-grid">
                 {% for item in items %}
-                    <div class="carousel-item">
+                    <div class="grid-item">
                         <div class="item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}');">
                             <a href="{{ url_for('item_details', item_id=item.id) }}" style="text-decoration: none; color: inherit;">
                                 <div class="item-details">
-                                    <h1 style="font-size: 42px;">{{ item.name }}</h1>
+                                    <h1 style="font-size: 24px;">{{ item.name }}</h1>
                                     <div style="display: flex; align-items: center;">
                                         <img src="{{ url_for('static', filename='images/price-tag.png') }}" style="width: 16px; height: 16px; margin-right: 5px;">
-                                        <p style="margin: 0;font-size: 28px;">₹{{ item.amount }}</p>
+                                        <p style="margin: 0;font-size: 18px;">₹{{ item.amount }}</p>
                                     </div>
                                     <div style="display: flex; align-items: center;">
                                         {% set food_type = item.type.lower() %}
@@ -153,13 +157,13 @@
                         </div>
                     </div>
                 {% endfor %}
-            {% else %}
-                <p>No items available in {{category}}.</p>
-            {% endif %}
-        </div>
-        <button class="carousel-btn right" onclick="scrollCarousel_{{ category|replace(' ', '_') }}('right')">&#10095;</button>
+            </div>
+        {% else %}
+            <p>No items available in {{category}}.</p>
+        {% endif %}
     </div>
 {% endfor %}
+
 
 
 <h2>Our Vendors</h2><br>
@@ -196,15 +200,15 @@
     function initCarousel(carouselId) {
         const carousel = document.getElementById(carouselId + '-carousel');
         if (!carousel) return;
-
+    
         const item = carousel.querySelector('.carousel-item');
         if (!item) return;
-
+    
         const itemWidth = item.offsetWidth;
-
+    
         window['scrollCarousel_' + carouselId] = function (direction) {
             const scrollAmount = itemWidth;
-
+    
             if (direction === 'left') {
                 carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             } else {
@@ -212,13 +216,14 @@
             }
         };
     }
-
+    
     document.addEventListener('DOMContentLoaded', function () {
-        const carousels = ['main', 'popular', 'vendors'{% for category in categorized_items %}, '{{ category|replace(' ', '_') }}'{% endfor %}];
-
+        // Only initialize carousels that actually exist in the HTML
+        const carousels = ['main', 'popular', 'vendors'];
+    
         carousels.forEach(id => {
             initCarousel(id);
-
+    
             if (!window[`_${id}_intervalSet`]) {
                 setInterval(() => {
                     window['scrollCarousel_' + id]('right');
@@ -226,8 +231,56 @@
                 window[`_${id}_intervalSet`] = true;
             }
         });
+        
+        // Initialize category buttons
+        const categoryButtons = document.querySelectorAll('.category-toggle-btn');
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const categoryId = this.getAttribute('data-category');
+                toggleCategory(categoryId);
+            });
+        });
     });
+    
+    function toggleCategory(categoryId) {
+        const allCategories = document.querySelectorAll('.category-items');
+        allCategories.forEach(cat => {
+            if (cat.id === categoryId) {
+                // Toggle the visibility with animation
+                if (cat.style.display === 'none' || cat.style.display === '') {
+                    cat.style.display = 'block';
+                    // Trigger animation by adding the class after display is set
+                    setTimeout(() => {
+                        cat.classList.add('category-visible');
+                    }, 10);
+                } else {
+                    cat.classList.remove('category-visible');
+                    // Wait for animation to complete before hiding
+                    setTimeout(() => {
+                        cat.style.display = 'none';
+                    }, 300);
+                }
+            } else {
+                // Hide other categories with animation
+                cat.classList.remove('category-visible');
+                setTimeout(() => {
+                    cat.style.display = 'none';
+                }, 300);
+            }
+        });
+        
+        // Update active button state
+        const allButtons = document.querySelectorAll('.category-toggle-btn');
+        allButtons.forEach(btn => {
+            if (btn.getAttribute('data-category') === categoryId) {
+                btn.classList.toggle('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
 </script>
+
 
 
 {% endblock content %}
