@@ -42,7 +42,7 @@
                 {% endfor %}
             </select>
             <input class="searchbar" type="search" name="search" placeholder="Search" value="{{ search_query if search_query else '' }}" required>
-            <img src="{{ url_for('static', filename='images/search-icon.png') }}" alt="Search" class='search-icon' onclick="this.closest('form').submit();">
+            <img src="{{ url_for('static', filename='images/search.png') }}" alt="Search" class='search-icon' onclick="this.closest('form').submit();">
         </div>
     </form>
 </div>

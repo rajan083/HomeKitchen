@@ -77,9 +77,9 @@ body{
     cursor: pointer;
 }
 
-.search-icon img {
-    width: 20px;
-    height: 20px;
+.search-icon{
+    width: 30px;
+    height: 30px;
     object-fit: contain;
 
 }.homecard-container{
@@ -2435,11 +2435,10 @@ footer {
 .category-buttons {
     display: flex;
     flex-wrap: wrap;
-    width: 90%;  /* Reduced from 100% to create margin from ends */
-    max-width: 1200px;  /* Limits maximum width to typical interface size */
-    gap: 15px;  /* Slightly increased gap for better spacing */
+    width: 90%;  
+    max-width: 1200px;  
+    gap: 35px; 
     margin: 100px auto 20px auto;  
-    /* Centers the container and keeps bottom margin */
     justify-content: space-between;
 }
 
