@@ -19,6 +19,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key= 'SecretKey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost/HomeKitchen'
+
+
+#for Deployment
+# app.config["SQLALCHEMY_DATABASE_URI"] = (
+#     'mysql+pymysql://root:Redrajen%40083@34.131.83.128:3306/homekitchendb'
+# )
+
+
 db=SQLAlchemy(app)
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

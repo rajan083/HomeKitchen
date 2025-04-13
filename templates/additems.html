@@ -19,7 +19,7 @@
             </div>
         </div>
     </div>
-    <button class="new-item-button" onclick="toggleForm()"><strong>+ New item</strong></button>
+    <button class="new-item-button" onclick="toggleForm()">+ New item</button>
 </div>
 <div id="item-form" style="display: none;">
     <div class='newitemform'>
@@ -86,7 +86,6 @@
     <div class="item-carousel" id="item-carousel" style="display: flex; transition: transform 0.5s ease-in-out;">
         {% for item in items %}
         <div class="additem-item-card" style="background-image: url('{{ url_for('static', filename=item.image_url) }}'); min-width: 300px; margin: 0 10px;">
-            <img src="{{ url_for('static', filename=item.image_url) }}" alt="Item Image">
             <div>
                 <div class="item-details">
                     <h1 style="font-size: 56px;">{{ item.name }}</h1>    

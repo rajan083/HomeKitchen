@@ -633,8 +633,7 @@ nav ul li a:active {
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+
     z-index: 0;
     border-radius: 10px;
 }
@@ -800,9 +799,58 @@ nav ul li a:active {
 }
 
 /* Optional: styling for content wrapper inside the card */
-.item-details {
+.dashboard-item-details {
     background: rgba(0, 0, 0, 0.4);
     color: #fff;
+    border-radius: 0 0 8px 8px;
+    width: calc(100% + 20px);
+    padding: 6px 10px;
+    text-align: center;
+    justify-self: center;
+}
+
+
+.dashboard-item-details div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.item-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+
+.item-card:hover {
+    transform: scale(1.05);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+.dashboard-item-details h1, h2, strong {
+    margin: 0;
+    color: #fff;
+}
+.dashboard-item-details h1 {
+    font-size: clamp(20px, 5vw, 40px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+.dashboard-item-details p {
+    margin: 5px 0;
+    color: #fff;
+}
+
+
+/*==================================================*/
+
+
+
+.item-details {
+    color: #000;
     border-radius: 0 0 8px 8px;
     width: calc(100% + 20px);
     padding: 6px 10px;
@@ -829,11 +877,9 @@ nav ul li a:active {
     z-index: 10;
 }
 
-
-
 .item-details h1, h2, strong {
     margin: 0;
-    color: #fff;
+    color: #000;
 }
 .item-details h1 {
     font-size: clamp(20px, 5vw, 40px);
@@ -844,7 +890,7 @@ nav ul li a:active {
 }
 .item-details p {
     margin: 5px 0;
-    color: #fff;
+    color: #000;
 }
 .update-form {
     display: none;
@@ -1493,11 +1539,13 @@ footer {
     justify-content: flex-end;
 }
 .new-item-button{
+    color: #000;
+    font-weight: bold;
     width: 150px;
     height: 50px;
     padding: 5px 12px;
     margin: 10px;
-    border: 2pz solid #fff;
+    border: 2px solid #000;
     border-radius: 8px;
     transition: 
         transform 0.2s ease, 
@@ -1512,7 +1560,7 @@ footer {
     height: 50px;
     padding: 5px 12px;
     margin: 10px;
-    border: 2pz solid #000;
+    border: 2px solid #fff;
     border-radius: 8px;
     color: #fff;
     background-color: #000000;    
@@ -1521,7 +1569,7 @@ footer {
     z-index: 10;
 }
 .newitemform{
-    width: 100%;
+    width: auto;
     display: flex;
     gap: 10px;
     padding: 20px;
@@ -1533,12 +1581,7 @@ footer {
     position: relative;
     z-index: 1;
 }
-.newitemform:hover,
-.newitemform:active{
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 10;
-}
+
 
 .newitemform input, .newitemform textarea{
     padding: 8px 15px;
@@ -2441,46 +2484,63 @@ footer {
     margin: 100px auto 20px auto;  
     justify-content: space-between;
 }
+.category-toggle-btn { 
+    flex: 1; 
+    color: #000; 
+    font-weight: bold; 
+    min-width: 120px; 
+    padding: 12px 16px; 
+    font-size: 16px; 
+    border: none;
+    background-color: transparent; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    text-align: center; 
+    position: relative;
+} 
 
-.category-toggle-btn {
-    flex: 1;
-    color: #000;
-    font-weight: bold;
-    min-width: 120px;
-    padding: 12px 16px;
-    font-size: 16px;
-    border: 2px solid #000;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* Add a media query to ensure buttons look good on smaller screens */ 
+@media (max-width: 768px) { 
+    .category-buttons { 
+        width: 95%;
+        gap: 10px; 
+    } 
+} 
+
+.category-toggle-btn:hover { 
+    color: #2f3e3a;
+    border-radius: 10px 10px 10px 10px;
+    transform: translateY(-2px); 
+} 
+
+.category-toggle-btn.active { 
+    color: #fff;
+    border-radius: 10px 10px 0px 0px;
+    background-color:rgba(0, 0, 0, 0.4);
+    font-weight: 600;
 }
 
-/* Add a media query to ensure buttons look good on smaller screens */
-@media (max-width: 768px) {
-    .category-buttons {
-        width: 95%;  /* Slightly wider on small screens */
-        gap: 10px;
-    }
-}
-
-.category-toggle-btn:hover {
-    background-color: #2f3e3a;
-    color: white;
-    border: 2px solid #fff;    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.category-toggle-btn.active {
+.category-toggle-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    width: 60%;
+    height: 3px;
     background-color: #000;
-    color: white;
-    border: 2px solid #fff;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: width 0.3s ease;
 }
 
+.category-toggle-btn:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    width: 60%;
+    height: 2px;
+    background-color: #2f3e3a;
+    opacity: 0.5;
+}
 .items-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
