@@ -149,7 +149,6 @@ body{
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
     z-index: 10;
 }
-
 .registercard-container{
     display: flex;
     margin: 10px;
@@ -1763,15 +1762,6 @@ footer {
     margin: 0;
 }
 
-.profile-submit:hover,
-.profile-submit:active,
-.profile-submit:focus {
-    border: none;
-    background: none;
-    transform: none !important;
-    box-shadow: none !important;
-    outline: none;
-}
 .profile-submit img {
     display: block;
     transform: none;
